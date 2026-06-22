@@ -1,0 +1,262 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HeroContent {
+  id           String   @id @default(cuid())
+  headline1    String   @default("AI you can build,")
+  headline2    String   @default("deploy, and grow")
+  subtext      String   @default("We design, build and deploy AI systems that create real business value.")
+  ctaPrimary   String   @default("Get Started")
+  ctaSecondary String   @default("Book a demo")
+  badge        String   @default("1,200+ businesses trust PuzzleMetrics")
+  updatedAt    DateTime @updatedAt
+}
+
+model Service {
+  id              String   @id @default(cuid())
+  number          String
+  slug            String   @unique
+  title           String
+  shortTitle      String
+  tagline         String
+  description     String
+  longDescription String?
+  outcomes        String[]
+  tags            String[]
+  icon            String   @default("agent")
+  accentColor     String   @default("#6055D9")
+  accentBg        String   @default("rgba(96,85,217,0.08)")
+  accentBorder    String   @default("rgba(96,85,217,0.2)")
+  useCases        Json?
+  process         Json?
+  faqs            Json?
+  published       Boolean  @default(true)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PortfolioProject {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  client          String
+  category        String
+  industry        String
+  location        String
+  year            String
+  tagline         String
+  description     String
+  challenge       String
+  solution        String
+  results         String
+  heroMetric      String
+  heroMetricLabel String
+  metrics         Json
+  tags            String[]
+  images          String[] @default([])
+  accentColor     String
+  bgGradient      String
+  featured        Boolean  @default(false)
+  published       Boolean  @default(true)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CaseStudy {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  client          String
+  industry        String
+  location        String
+  year            String
+  service         String
+  duration        String
+  tagline         String
+  summary         String
+  problem         String
+  approach        String
+  execution       String
+  outcome         String
+  heroMetric      String
+  heroMetricLabel String
+  metrics         Json
+  testimonial     Json?
+  tags            String[]
+  accentColor     String
+  accentBg        String
+  bgGradient      String
+  featured        Boolean  @default(false)
+  published       Boolean  @default(true)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BlogPost {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  excerpt        String
+  category       String
+  author         String
+  authorRole     String
+  authorInitials String
+  authorColor    String
+  date           String
+  readTime       String
+  featured       Boolean  @default(false)
+  published      Boolean  @default(false)
+  accentColor    String
+  accentBg       String
+  tags           String[]
+  content        Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  bio       String
+  gradient  String
+  initials  String
+  skills    String[]
+  linkedin  String   @default("#")
+  photo     String?
+  avatarBg  String
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id            String   @id @default(cuid())
+  author        String
+  role          String
+  location      String
+  avatar        String
+  avatarColor   String
+  rating        Int      @default(5)
+  text          String
+  platform      String
+  platformLabel String
+  platformColor String
+  reviewUrl     String
+  date          String
+  verified      Boolean  @default(true)
+  published     Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PricingPlan {
+  id          String   @id @default(cuid())
+  name        String
+  tagline     String
+  price       String
+  pricePrefix String?
+  delivery    String
+  features    String[]
+  bestFor     String[]
+  quote       String
+  highlighted Boolean  @default(false)
+  ctaText     String   @default("Book a Meeting →")
+  icon        String   @default("rocket")
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model IntegrationTile {
+  id        String   @id @default(cuid())
+  name      String
+  bg        String
+  x         Int
+  y         Int
+  logoPath  String?
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model FormSubmission {
+  id        String   @id @default(cuid())
+  type      String
+  data      Json
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmailSettings {
+  id           String   @id @default(cuid())
+  smtpHost     String   @default("smtp.gmail.com")
+  smtpPort     Int      @default(587)
+  smtpUser     String   @default("")
+  smtpPass     String   @default("")
+  fromName     String   @default("PuzzleMetrics")
+  fromEmail    String   @default("hello@puzzlemetrics.com")
+  adminEmail   String   @default("admin@puzzlemetrics.com")
+  replyTo      String?
+  updatedAt    DateTime @updatedAt
+}
+
+model StatCard {
+  id        String   @id @default(cuid())
+  label     String
+  value     String
+  icon      String   @default("chart")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CompanyLogo {
+  id         String  @id @default(cuid())
+  name       String
+  logo       String  @default("")
+  websiteUrl String  @default("")
+  type       String
+  order      Int     @default(0)
+  active     Boolean @default(true)
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String
+  url       String
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSettings {
+  id            String   @id @default(cuid())
+  companyNumber String   @default("")
+  updatedAt     DateTime @updatedAt
+}

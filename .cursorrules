@@ -1,0 +1,122 @@
+# PuzzleMetrics — Cursor Rules
+
+## Project
+- Company: PuzzleMetrics — UK-based AI services company
+- Stack: Next.js 15 App Router, TypeScript, Tailwind CSS v4, Framer Motion, Three.js, Prisma, PostgreSQL
+- All components use the `'use client'` directive only when needed (hooks, events, animations)
+- Server components by default, client components only when required
+
+## Code Style
+- TypeScript strict mode — no `any`, always type everything
+- Use named exports for components, default exports for pages
+- File naming: PascalCase for components, kebab-case for pages/routes
+- Always use `@/` import alias, never relative imports like `../../`
+- Prefer `const` arrow functions for components: `const MyComponent = () => {}`
+- No inline styles — use Tailwind classes only
+- Group imports: React → Next.js → third-party → internal → types
+
+## Design System — NEVER deviate from these tokens
+- Brand violet: #6055D9
+- Violet dark: #3D34B0
+- Violet light: #EDEAFF
+- Background (light): #FAFAFE
+- Stone (alt bg): #F4F3FC
+- Ink (text): #0D0B1A
+- Mid (secondary text): #4A4870
+- Muted: #8A87B0
+- Border: #D6D3F0
+- Dark bg: #08071A
+- Dark surface: #0F0E28
+
+## Fonts (loaded via next/font in layout.tsx)
+- Headings: Syne 800 — var(--font-syne)
+- Body: DM Sans 300/400/500 — var(--font-sans)
+- Mono: DM Mono 400 — var(--font-mono)
+- Accent quotes: Playfair Display 700 italic — var(--font-playfair)
+
+## Tailwind Config
+- darkMode: 'class' — dark mode via class on <html>
+- All brand colours extended in tailwind.config.ts
+- Custom tokens: rounded-card (16px), rounded-btn (12px)
+
+## Animations
+- Use Framer Motion for ALL scroll and entry animations
+- Define reusable variants in src/lib/animations.ts
+- Always use `whileInView` with `viewport={{ once: true, amount: 0.2 }}`
+- Always add SSR guard: `if (typeof window === 'undefined') return`
+- Respect prefers-reduced-motion in all animation variants
+- Three.js globe: lazy load with `dynamic(() => import(...), { ssr: false })`
+- Never render Three.js on mobile — use static SVG fallback below 768px
+
+## Dark Mode Rules
+- Toggle adds/removes 'dark' class on `document.documentElement` — NEVER on body
+- Read from localStorage key `'pm-theme'` on mount, apply before first paint
+- Partner/client logos in dark mode: use explicit white SVG fills — NEVER CSS `filter: invert()`
+
+## Auth & Security
+- JWT stored in httpOnly + secure + sameSite:'lax' cookies — NEVER localStorage
+- Every /admin API route must verify JWT and check role before any operation
+- super_admin: full access | chat_operator: /admin/chat only
+- Rate limit: /api/auth/login (5/min), /api/contact (10/min), /api/newsletter (20/min)
+
+## Database
+- Prisma ORM with PostgreSQL
+- Prisma client singleton in src/lib/db.ts
+- Always use transactions for multi-table writes
+- Never expose raw Prisma errors to the client
+
+## File Structure
+- src/app/                        → Next.js App Router pages
+- src/app/admin/                  → Admin panel routes (all protected)
+- src/app/api/                    → API route handlers
+- src/components/public/layout/   → Navbar, Footer, LoaderScreen
+- src/components/public/home/     → Hero, TickerStrip, Services, Process, Platforms, Partners, SocialProof, CTABand, Newsletter
+- src/components/public/shared/   → Button, Card, Badge, Input, SectionLabel
+- src/components/admin/           → All admin UI components
+- src/components/chat/            → ChatWidget (public), ChatPanel (admin)
+- src/lib/                        → db.ts, auth.ts, email.ts, upload.ts, animations.ts
+- src/hooks/                      → useCountUp, useScrollAnimation, useTheme, useChatSocket
+- src/types/                      → All TypeScript interfaces
+- src/middleware.ts                → JWT protection for all /admin/* routes
+- public/                         → logo.svg, favicon.ico, og-image.jpg
+
+## Logo — CONFIRMED WORKING — DO NOT CHANGE
+The Navbar logo SVG is correct and working. Never replace or
+modify the logo SVG in Navbar.tsx. It uses inline SVG with
+viewBox="0 0 210 215" and these exact paths:
+
+Outer path fill="#6055D9":
+M 48,10 Q 18,10 18,40 L 18,86 C 8,86 0,91 0,99 C 0,107 8,112
+18,112 L 18,172 Q 18,192 38,192 L 80,192 C 80,202 85,210 95,210
+C 105,210 110,202 110,192 L 158,192 Q 178,192 178,172 L 178,112
+C 188,112 196,107 196,99 C 196,91 188,86 178,86 L 178,40
+Q 178,10 148,10 Z
+
+Inner path fill="#8B85E8" fillOpacity="0.45":
+M 58,26 Q 34,26 34,50 L 34,86 C 26,86 20,90 20,97 C 20,104
+26,108 34,108 L 34,162 Q 34,178 50,178 L 80,178 C 80,186 84,192
+92,192 C 100,192 104,186 104,178 L 148,178 Q 164,178 164,162
+L 164,108 C 172,108 178,104 178,97 C 178,90 172,86 164,86
+L 164,50 Q 164,26 140,26 Z
+
+Text: x="98" y="155" fontSize="110" fill="white" — bold P
+
+Use this same SVG in ALL components that need the logo:
+Footer, LoaderScreen, admin panel, og-image, anywhere else.
+
+## When building components
+- Always check the SRS v2 document for exact specs before building any component
+- Build in the order defined in SRS Section 10.2 (Phase 1 → Phase 12)
+- Every section's text content is fetched from DB via API — never hardcode copy
+- All hover states must use transition duration 200ms ease
+- All cards: radius 16px, border 1px solid #D6D3F0, hover shadow 0 8px 32px rgba(96,85,217,0.12)
+- Ghost section numbers: position absolute, top-right, Syne 800, color rgba(96,85,217,0.06), pointer-events none
+
+## Do NOT
+- Do not use NextAuth — auth is custom JWT only
+- Do not use any CSS framework other than Tailwind
+- Do not hardcode any text content — everything comes from DB/API
+- Do not use CSS filter:invert() on any logo/image
+- Do not use localStorage for JWT tokens
+- Do not create files outside the defined structure above
+- Do not use default Next.js blue theme anywhere
