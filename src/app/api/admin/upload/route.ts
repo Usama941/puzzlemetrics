@@ -1,12 +1,9 @@
-import { mkdir, writeFile } from "fs/promises";
-import { join } from "path";
 import { NextRequest, NextResponse } from "next/server";
-import { internalServerError } from "@/lib/api-error";
+import { createClient } from "@supabase/supabase-js";
 import { requireAdminApiAccess } from "@/lib/admin-auth";
 
-const VALID_MIME_TYPES = [
+const allowedTypes = [
   "image/jpeg",
-  "image/jpg",
   "image/png",
   "image/webp",
   "image/gif",
@@ -17,55 +14,54 @@ export async function POST(request: NextRequest) {
   const denied = await requireAdminApiAccess(request);
   if (denied) return denied;
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    return NextResponse.json({ error: "Upload service not configured" }, { status: 500 });
+  }
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+
   try {
     const formData = await request.formData();
-    const file = formData.get("file");
-    if (!file || !(file instanceof Blob)) {
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const mime = file.type;
-    if (!VALID_MIME_TYPES.includes(mime as (typeof VALID_MIME_TYPES)[number])) {
+    if (!allowedTypes.includes(file.type as (typeof allowedTypes)[number])) {
       return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: "File too large" }, { status: 400 });
+      return NextResponse.json({ error: "File too large. Max 5MB." }, { status: 400 });
     }
 
-    const originalName =
-      "name" in file && typeof (file as File).name === "string" ? (file as File).name : "upload.jpg";
-    const extFromName = originalName.split(".").pop()?.toLowerCase();
-    const extFromMime =
-      mime === "image/png"
-        ? "png"
-        : mime === "image/webp"
-          ? "webp"
-          : mime === "image/gif"
-            ? "gif"
-            : mime === "image/svg+xml"
-              ? "svg"
-              : "jpg";
-    const ext =
-      extFromName && ["jpg", "jpeg", "png", "webp", "gif", "svg"].includes(extFromName)
-        ? extFromName.replace("jpeg", "jpg")
-        : extFromMime;
-
+    const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
     const folderRaw = formData.get("folder");
     const folder = folderRaw === "logos" ? "logos" : "team";
-    const filename = `${folder === "logos" ? "logo" : "team"}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-
-    const uploadDir = join(process.cwd(), "public", "uploads", folder);
-    await mkdir(uploadDir, { recursive: true });
+    const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(join(uploadDir, filename), buffer);
 
-    const url = `/uploads/${folder}/${filename}`;
+    const { error } = await supabase.storage.from("uploads").upload(filename, buffer, {
+      contentType: file.type,
+      upsert: false,
+    });
 
-    return NextResponse.json({ url, filename });
-  } catch (err) {
-    return internalServerError("upload API", err);
+    if (error) {
+      console.error("Supabase upload error:", error);
+      return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    }
+
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("uploads").getPublicUrl(filename);
+
+    return NextResponse.json({ url: publicUrl });
+  } catch (error) {
+    console.error("Upload error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
