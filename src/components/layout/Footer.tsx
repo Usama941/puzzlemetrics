@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import Logo from "@/components/Logo";
 import { FooterCompanyNumber } from "@/components/layout/FooterCompanyNumber";
+import { FooterContactLinks } from "@/components/layout/FooterContactLinks";
 import { FooterSocialLinks } from "@/components/layout/FooterSocialLinks";
 import { NewsletterInput } from "@/components/layout/NewsletterInput";
 
@@ -46,6 +47,9 @@ export const Footer = () => {
                 PuzzleMetrics
               </span>
             </Link>
+            <Suspense fallback={null}>
+              <FooterContactLinks />
+            </Suspense>
           </div>
 
           <FooterColumn title="Quick Links" items={QUICK_LINKS} />
