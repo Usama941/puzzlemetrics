@@ -20,8 +20,17 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const data = sanitizeStringFields(raw as Record<string, unknown>);
-  const row = await prisma.portfolioProject.create({ data });
+  const body = sanitizeStringFields(raw as Record<string, unknown>);
+  if (!body.slug || (typeof body.slug === "string" && body.slug.includes(" "))) {
+    const title = typeof body.title === "string" ? body.title : "";
+    body.slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
+  const row = await prisma.portfolioProject.create({ data: body });
   revalidateTag("portfolio");
   return NextResponse.json(row);
 }

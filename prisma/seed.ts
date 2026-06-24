@@ -1033,15 +1033,15 @@ async function main() {
 
   // ── 10. STAT CARDS ────────────────────────────────
   const statCardsData = [
-    { id: "stat-users", label: "Active Users", value: "1,200+", icon: "users", order: 0 },
-    { id: "stat-leads", label: "Leads Generated/Month", value: "2,400+", icon: "leads", order: 1 },
-    { id: "stat-agents", label: "AI Agents Deployed", value: "50+", icon: "agents", order: 2 },
-    { id: "stat-satisfaction", label: "Client Satisfaction", value: "98%", icon: "satisfaction", order: 3 },
+    { id: "stat-users", label: "Active Users", value: "1,200+", color: "#10B981", icon: "users", order: 0 },
+    { id: "stat-leads", label: "Leads Generated/Month", value: "2,400+", color: "#0EA5E9", icon: "leads", order: 1 },
+    { id: "stat-agents", label: "AI Agents Deployed", value: "50+", color: "#6055D9", icon: "agents", order: 2 },
+    { id: "stat-satisfaction", label: "Client Satisfaction", value: "98%", color: "#F59E0B", icon: "satisfaction", order: 3 },
   ];
   for (const s of statCardsData) {
     await prisma.statCard.upsert({
       where: { id: s.id },
-      update: { label: s.label, value: s.value, icon: s.icon, order: s.order },
+      update: { label: s.label, value: s.value, color: s.color, icon: s.icon, order: s.order },
       create: s,
     });
   }

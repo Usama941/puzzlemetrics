@@ -229,6 +229,7 @@ model StatCard {
   id        String   @id @default(cuid())
   label     String
   value     String
+  color     String   @default("#6055D9")
   icon      String   @default("chart")
   order     Int      @default(0)
   createdAt DateTime @default(now())

@@ -13,6 +13,15 @@ import { adminJson } from "@/lib/admin-fetch";
 
 type Props = { initial?: PortfolioProject | null };
 
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
 const empty: Omit<PortfolioProject, "id" | "createdAt" | "updatedAt"> = {
   slug: "",
   title: "",
@@ -87,10 +96,6 @@ export function PortfolioForm({ initial }: Props) {
     <form onSubmit={onSubmit} className="mx-auto max-w-4xl space-y-5 rounded-2xl border border-white/[0.08] bg-[#13122A] p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className={adminLabelClass}>Slug</label>
-          <input className={adminInputClass} value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} required />
-        </div>
-        <div>
           <label className={adminLabelClass}>Order</label>
           <input
             type="number"
@@ -101,7 +106,21 @@ export function PortfolioForm({ initial }: Props) {
         </div>
         <div className="sm:col-span-2">
           <label className={adminLabelClass}>Title</label>
-          <input className={adminInputClass} value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
+          <input
+            className={adminInputClass}
+            value={form.title}
+            onChange={(e) => {
+              setForm((prev) => ({
+                ...prev,
+                title: e.target.value,
+                slug: generateSlug(e.target.value),
+              }));
+            }}
+            required
+          />
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+            URL: puzzlemetrics.com/portfolio/{form.slug || "…"}
+          </p>
         </div>
         <div>
           <label className={adminLabelClass}>Client</label>

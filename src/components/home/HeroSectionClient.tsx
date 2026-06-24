@@ -91,10 +91,10 @@ const AvatarStack = () => (
   </svg>
 );
 
-const HeroDashboardMockup = ({ stats }: { stats: { label: string; value: string }[] }) => {
+const HeroDashboardMockup = ({ stats }: { stats: { label: string; value: string; color: string }[] }) => {
   const displayStats = stats.length > 0 ? stats.slice(0, 2) : [
-    { label: "Active users", value: "1,200+" },
-    { label: "ROAS", value: "340%" },
+    { label: "Active users", value: "1,200+", color: "#10B981" },
+    { label: "ROAS", value: "340%", color: "#6055D9" },
   ];
   const bars = displayStats.map((_, i) => 40 + ((i + 1) * 25) % 55);
 
@@ -136,10 +136,15 @@ const HeroDashboardMockup = ({ stats }: { stats: { label: string; value: string 
             {displayStats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-tertiary)] p-4 text-left"
+                style={{
+                  background: `${stat.color}15`,
+                  borderLeft: `3px solid ${stat.color}`,
+                  borderRadius: 12,
+                  padding: "16px 20px",
+                }}
               >
-                <p className="text-[11px] text-[var(--text-secondary)]">{stat.label}</p>
-                <p className="mt-1 text-2xl font-extrabold text-[var(--text-primary)]">{stat.value}</p>
+                <span style={{ color: stat.color, fontSize: 32, fontWeight: 800 }}>{stat.value}</span>
+                <p style={{ color: "var(--text-secondary)", marginTop: 4, fontSize: 11 }}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -181,7 +186,7 @@ export function HeroSectionClient({
   stats,
 }: {
   hero: HeroContentProps;
-  stats: { label: string; value: string }[];
+  stats: { label: string; value: string; color: string }[];
 }) {
   const [stars, setStars] = useState<StarSpec[]>([]);
   const prefersReduced = useReducedMotion();

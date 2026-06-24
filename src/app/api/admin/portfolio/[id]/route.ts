@@ -35,6 +35,15 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   }
   const body = sanitizeStringFields(raw as Record<string, unknown>);
   delete body.id;
+  if (!body.slug || (typeof body.slug === "string" && body.slug.includes(" "))) {
+    const title = typeof body.title === "string" ? body.title : "";
+    body.slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
   const row = await prisma.portfolioProject.update({ where: { id }, data: body });
   revalidateTag("portfolio");
   return NextResponse.json(row);

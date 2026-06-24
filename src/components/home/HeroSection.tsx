@@ -24,7 +24,11 @@ export async function HeroSection() {
       }
     : defaultHero;
 
-  const stats = statRows.map((s) => ({ label: s.label, value: s.value }));
+  const stats = statRows.map((s) => ({
+    label: s.label,
+    value: s.value,
+    color: s.color || "#6055D9",
+  }));
 
   return <HeroSectionClient hero={hero} stats={stats} />;
 }
