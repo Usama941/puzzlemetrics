@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ArrayInput } from "@/components/admin/ArrayInput";
+import { ColorPalettePicker } from "@/components/admin/ColorPalettePicker";
 import { ToggleSwitch } from "@/components/admin/ToggleSwitch";
 import { adminBtnGhostClass, adminBtnPrimaryClass, adminInputClass, adminLabelClass } from "@/components/admin/admin-ui";
 import { useAdminToast } from "@/components/admin/AdminToast";
@@ -100,9 +101,13 @@ export function BlogForm({ initial }: Props) {
           <label className={adminLabelClass}>Initials</label>
           <input className={adminInputClass} value={form.authorInitials} onChange={(e) => setForm((f) => ({ ...f, authorInitials: e.target.value }))} />
         </div>
-        <div>
-          <label className={adminLabelClass}>Author color</label>
-          <input className={adminInputClass} value={form.authorColor} onChange={(e) => setForm((f) => ({ ...f, authorColor: e.target.value }))} />
+        <div className="sm:col-span-2">
+          <ColorPalettePicker
+            label="Author color"
+            selectedColor={form.authorColor}
+            onChange={(authorColor) => setForm((f) => ({ ...f, authorColor }))}
+            compact
+          />
         </div>
         <div>
           <label className={adminLabelClass}>Date (display)</label>
@@ -112,9 +117,12 @@ export function BlogForm({ initial }: Props) {
           <label className={adminLabelClass}>Read time</label>
           <input className={adminInputClass} value={form.readTime} onChange={(e) => setForm((f) => ({ ...f, readTime: e.target.value }))} />
         </div>
-        <div>
-          <label className={adminLabelClass}>Accent color</label>
-          <input className={adminInputClass} value={form.accentColor} onChange={(e) => setForm((f) => ({ ...f, accentColor: e.target.value }))} />
+        <div className="sm:col-span-2">
+          <ColorPalettePicker
+            label="Accent color"
+            selectedColor={form.accentColor}
+            onChange={(accentColor) => setForm((f) => ({ ...f, accentColor }))}
+          />
         </div>
         <div>
           <label className={adminLabelClass}>Accent BG</label>

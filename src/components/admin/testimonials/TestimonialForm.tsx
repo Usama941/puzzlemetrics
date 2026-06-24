@@ -4,6 +4,7 @@ import type { Testimonial } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ColorPalettePicker } from "@/components/admin/ColorPalettePicker";
 import { ToggleSwitch } from "@/components/admin/ToggleSwitch";
 import { adminBtnGhostClass, adminBtnPrimaryClass, adminInputClass, adminLabelClass } from "@/components/admin/admin-ui";
 import { useAdminToast } from "@/components/admin/AdminToast";
@@ -84,9 +85,13 @@ export function TestimonialForm({ initial }: Props) {
           <label className={adminLabelClass}>Avatar (initials)</label>
           <input className={adminInputClass} value={form.avatar} onChange={(e) => setForm((f) => ({ ...f, avatar: e.target.value }))} />
         </div>
-        <div>
-          <label className={adminLabelClass}>Avatar color</label>
-          <input className={adminInputClass} value={form.avatarColor} onChange={(e) => setForm((f) => ({ ...f, avatarColor: e.target.value }))} />
+        <div className="sm:col-span-2">
+          <ColorPalettePicker
+            label="Avatar color"
+            selectedColor={form.avatarColor}
+            onChange={(avatarColor) => setForm((f) => ({ ...f, avatarColor }))}
+            compact
+          />
         </div>
         <div>
           <label className={adminLabelClass}>Rating</label>
@@ -111,9 +116,13 @@ export function TestimonialForm({ initial }: Props) {
           <label className={adminLabelClass}>Platform label</label>
           <input className={adminInputClass} value={form.platformLabel} onChange={(e) => setForm((f) => ({ ...f, platformLabel: e.target.value }))} />
         </div>
-        <div>
-          <label className={adminLabelClass}>Platform color</label>
-          <input className={adminInputClass} value={form.platformColor} onChange={(e) => setForm((f) => ({ ...f, platformColor: e.target.value }))} />
+        <div className="sm:col-span-2">
+          <ColorPalettePicker
+            label="Platform color"
+            selectedColor={form.platformColor}
+            onChange={(platformColor) => setForm((f) => ({ ...f, platformColor }))}
+            compact
+          />
         </div>
         <div className="sm:col-span-2">
           <label className={adminLabelClass}>Review URL</label>

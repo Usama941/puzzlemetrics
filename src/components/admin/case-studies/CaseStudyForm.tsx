@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { ArrayInput } from "@/components/admin/ArrayInput";
+import { ColorPalettePicker } from "@/components/admin/ColorPalettePicker";
 import { ToggleSwitch } from "@/components/admin/ToggleSwitch";
 import { adminBtnGhostClass, adminBtnPrimaryClass, adminInputClass, adminLabelClass } from "@/components/admin/admin-ui";
 import { useAdminToast } from "@/components/admin/AdminToast";
@@ -153,9 +154,12 @@ export function CaseStudyForm({ initial }: Props) {
         <div className="sm:col-span-2">
           <ArrayInput label="Tags" value={form.tags} onChange={(tags) => setForm((f) => ({ ...f, tags }))} />
         </div>
-        <div>
-          <label className={adminLabelClass}>Accent color</label>
-          <input className={adminInputClass} value={form.accentColor} onChange={(e) => setForm((f) => ({ ...f, accentColor: e.target.value }))} />
+        <div className="sm:col-span-2">
+          <ColorPalettePicker
+            label="Accent color"
+            selectedColor={form.accentColor}
+            onChange={(accentColor) => setForm((f) => ({ ...f, accentColor }))}
+          />
         </div>
         <div>
           <label className={adminLabelClass}>Accent BG</label>
