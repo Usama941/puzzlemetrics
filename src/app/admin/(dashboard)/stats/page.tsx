@@ -4,7 +4,19 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = 'force-dynamic';
 
 export default async function AdminStatsPage() {
-  const rows = await prisma.statCard.findMany({ orderBy: { order: "asc" } });
+  const rows = await prisma.statCard.findMany({
+    orderBy: { order: "asc" },
+    select: {
+      id: true,
+      label: true,
+      value: true,
+      color: true,
+      icon: true,
+      order: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
 
   return (
     <div>

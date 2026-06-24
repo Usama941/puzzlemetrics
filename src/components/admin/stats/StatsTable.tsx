@@ -2,9 +2,9 @@
 
 import type { StatCard } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { ColorPalettePicker, DEFAULT_PALETTE_COLOR, normalizeColor } from "@/components/admin/ColorPalettePicker";
+import { ColorPalettePicker, DEFAULT_PALETTE_COLOR } from "@/components/admin/ColorPalettePicker";
 import { DeleteConfirmModal } from "@/components/admin/DeleteConfirmModal";
 import { adminBtnPrimaryClass, adminInputClass } from "@/components/admin/admin-ui";
 import { useAdminToast } from "@/components/admin/AdminToast";
@@ -15,7 +15,7 @@ type Props = { initial: StatCard[] };
 function normalizeStatRow(row: StatCard): StatCard {
   return {
     ...row,
-    color: normalizeColor(row.color),
+    color: row.color?.trim() || DEFAULT_PALETTE_COLOR,
   };
 }
 
@@ -23,7 +23,7 @@ function statPayload(row: StatCard) {
   return {
     label: row.label,
     value: row.value,
-    color: normalizeColor(row.color),
+    color: row.color?.trim() || DEFAULT_PALETTE_COLOR,
     icon: row.icon || "chart",
     order: row.order,
   };
@@ -33,40 +33,65 @@ export function StatsTable({ initial }: Props) {
   const router = useRouter();
   const toast = useAdminToast();
   const [rows, setRows] = useState(() => initial.map(normalizeStatRow));
+  const rowsRef = useRef(rows);
   const [pending, setPending] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [draft, setDraft] = useState({ label: "", value: "", color: DEFAULT_PALETTE_COLOR });
 
   useEffect(() => {
-    setRows(initial.map(normalizeStatRow));
+    rowsRef.current = rows;
+  }, [rows]);
+
+  useEffect(() => {
+    const normalized = initial.map(normalizeStatRow);
+    setRows(normalized);
+    rowsRef.current = normalized;
   }, [initial]);
 
-  async function saveRow(row: StatCard) {
-    const payload = statPayload(row);
-    try {
-      setPending(row.id);
-      const saved = await adminJson<StatCard>(`/api/admin/stats/${row.id}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
-      setRows((r) => r.map((x) => (x.id === row.id ? normalizeStatRow(saved) : x)));
-      toast({ type: "success", message: "Saved" });
-      router.refresh();
-    } catch {
-      toast({ type: "error", message: "Could not save" });
-    } finally {
-      setPending(null);
-    }
-  }
+  const saveRow = useCallback(
+    async (row: StatCard) => {
+      const payload = statPayload(row);
+      try {
+        setPending(row.id);
+        const saved = await adminJson<StatCard>(`/api/admin/stats/${row.id}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        });
+        const normalized = normalizeStatRow(saved);
+        setRows((current) => {
+          const next = current.map((x) => (x.id === row.id ? normalized : x));
+          rowsRef.current = next;
+          return next;
+        });
+        toast({ type: "success", message: "Saved" });
+        router.refresh();
+      } catch {
+        toast({ type: "error", message: "Could not save" });
+      } finally {
+        setPending(null);
+      }
+    },
+    [router, toast],
+  );
 
   function updateStat(id: string, field: "label" | "value", value: string) {
-    setRows((r) => r.map((x) => (x.id === id ? { ...x, [field]: value } : x)));
+    setRows((prev) => {
+      const next = prev.map((x) => (x.id === id ? { ...x, [field]: value } : x));
+      rowsRef.current = next;
+      return next;
+    });
   }
 
-  function updateStatColor(statId: string, newColor: string) {
-    const updated = rows.map((s) => (s.id === statId ? { ...s, color: newColor } : s));
-    const row = updated.find((s) => s.id === statId);
-    setRows(updated);
+  function handleColorChange(statId: string, newColor: string) {
+    const next = rowsRef.current.map((s) => (s.id === statId ? { ...s, color: newColor } : s));
+    rowsRef.current = next;
+    setRows(next);
+    const updated = next.find((s) => s.id === statId);
+    if (updated) void saveRow(updated);
+  }
+
+  function saveRowById(statId: string) {
+    const row = rowsRef.current.find((s) => s.id === statId);
     if (row) void saveRow(row);
   }
 
@@ -82,12 +107,17 @@ export function StatsTable({ initial }: Props) {
         body: JSON.stringify({
           label: draft.label,
           value: draft.value,
-          color: normalizeColor(draft.color),
+          color: draft.color?.trim() || DEFAULT_PALETTE_COLOR,
           icon: "chart",
-          order: rows.length,
+          order: rowsRef.current.length,
         }),
       });
-      setRows((r) => [...r, normalizeStatRow(row)]);
+      const normalized = normalizeStatRow(row);
+      setRows((current) => {
+        const next = [...current, normalized];
+        rowsRef.current = next;
+        return next;
+      });
       setDraft({ label: "", value: "", color: DEFAULT_PALETTE_COLOR });
       toast({ type: "success", message: "Stat added" });
       router.refresh();
@@ -100,10 +130,11 @@ export function StatsTable({ initial }: Props) {
 
   async function moveRow(index: number, dir: -1 | 1) {
     const j = index + dir;
-    if (j < 0 || j >= rows.length) return;
-    const next = [...rows];
+    if (j < 0 || j >= rowsRef.current.length) return;
+    const next = [...rowsRef.current];
     [next[index], next[j]] = [next[j], next[index]];
     const reordered = next.map((r, i) => ({ ...r, order: i }));
+    rowsRef.current = reordered;
     setRows(reordered);
     try {
       await Promise.all(
@@ -121,7 +152,11 @@ export function StatsTable({ initial }: Props) {
     if (!deleteId) return;
     try {
       await adminJson(`/api/admin/stats/${deleteId}`, { method: "DELETE" });
-      setRows((r) => r.filter((x) => x.id !== deleteId));
+      setRows((current) => {
+        const next = current.filter((x) => x.id !== deleteId);
+        rowsRef.current = next;
+        return next;
+      });
       toast({ type: "success", message: "Deleted" });
       router.refresh();
     } catch {
@@ -145,67 +180,70 @@ export function StatsTable({ initial }: Props) {
             </tr>
           </thead>
           <tbody className="text-white/85">
-            {rows.map((row, i) => (
-              <tr key={row.id} className="border-b border-white/[0.06]">
-                <td className="px-4 py-3 align-top">
-                  <div className="flex gap-1">
+            {rows.map((row, i) => {
+              const selectedColor = row.color || DEFAULT_PALETTE_COLOR;
+              return (
+                <tr key={row.id} className="border-b border-white/[0.06]">
+                  <td className="px-4 py-3 align-top">
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        disabled={i === 0}
+                        onClick={() => moveRow(i, -1)}
+                        className="rounded px-2 py-1 text-xs text-white/60 hover:bg-white/5 disabled:opacity-30"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        disabled={i === rows.length - 1}
+                        onClick={() => moveRow(i, 1)}
+                        className="rounded px-2 py-1 text-xs text-white/60 hover:bg-white/5 disabled:opacity-30"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    <input
+                      className={adminInputClass}
+                      value={row.label}
+                      placeholder="Active Users"
+                      onChange={(e) => updateStat(row.id, "label", e.target.value)}
+                      onBlur={() => saveRowById(row.id)}
+                      disabled={pending === row.id}
+                    />
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    <input
+                      className={adminInputClass}
+                      value={row.value}
+                      placeholder="1,200+"
+                      onChange={(e) => updateStat(row.id, "value", e.target.value)}
+                      onBlur={() => saveRowById(row.id)}
+                      disabled={pending === row.id}
+                    />
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    <ColorPalettePicker
+                      label="Color"
+                      selectedColor={selectedColor}
+                      onChange={(color) => handleColorChange(row.id, color)}
+                      compact
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-right align-top">
                     <button
                       type="button"
-                      disabled={i === 0}
-                      onClick={() => moveRow(i, -1)}
-                      className="rounded px-2 py-1 text-xs text-white/60 hover:bg-white/5 disabled:opacity-30"
+                      className="inline-flex rounded-lg p-2 text-red-400 hover:bg-white/5"
+                      onClick={() => setDeleteId(row.id)}
                     >
-                      ↑
+                      <Trash2 className="h-4 w-4" />
                     </button>
-                    <button
-                      type="button"
-                      disabled={i === rows.length - 1}
-                      onClick={() => moveRow(i, 1)}
-                      className="rounded px-2 py-1 text-xs text-white/60 hover:bg-white/5 disabled:opacity-30"
-                    >
-                      ↓
-                    </button>
-                  </div>
-                </td>
-                <td className="px-4 py-3 align-top">
-                  <input
-                    className={adminInputClass}
-                    value={row.label}
-                    placeholder="Active Users"
-                    onChange={(e) => updateStat(row.id, "label", e.target.value)}
-                    onBlur={() => saveRow(rows.find((x) => x.id === row.id) ?? row)}
-                    disabled={pending === row.id}
-                  />
-                </td>
-                <td className="px-4 py-3 align-top">
-                  <input
-                    className={adminInputClass}
-                    value={row.value}
-                    placeholder="1,200+"
-                    onChange={(e) => updateStat(row.id, "value", e.target.value)}
-                    onBlur={() => saveRow(rows.find((x) => x.id === row.id) ?? row)}
-                    disabled={pending === row.id}
-                  />
-                </td>
-                <td className="px-4 py-3 align-top">
-                  <ColorPalettePicker
-                    label="Color"
-                    selectedColor={row.color || DEFAULT_PALETTE_COLOR}
-                    onChange={(color) => updateStatColor(row.id, color)}
-                    compact
-                  />
-                </td>
-                <td className="px-4 py-3 text-right align-top">
-                  <button
-                    type="button"
-                    className="inline-flex rounded-lg p-2 text-red-400 hover:bg-white/5"
-                    onClick={() => setDeleteId(row.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
