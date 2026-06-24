@@ -2,9 +2,9 @@
 
 import type { StatCard } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { ColorPalettePicker, DEFAULT_PALETTE_COLOR } from "@/components/admin/ColorPalettePicker";
+import { ColorPalettePicker, DEFAULT_PALETTE_COLOR, normalizeColor } from "@/components/admin/ColorPalettePicker";
 import { DeleteConfirmModal } from "@/components/admin/DeleteConfirmModal";
 import { adminBtnPrimaryClass, adminInputClass } from "@/components/admin/admin-ui";
 import { useAdminToast } from "@/components/admin/AdminToast";
@@ -12,18 +12,44 @@ import { adminJson } from "@/lib/admin-fetch";
 
 type Props = { initial: StatCard[] };
 
+function normalizeStatRow(row: StatCard): StatCard {
+  return {
+    ...row,
+    color: normalizeColor(row.color),
+  };
+}
+
+function statPayload(row: StatCard) {
+  return {
+    label: row.label,
+    value: row.value,
+    color: normalizeColor(row.color),
+    icon: row.icon || "chart",
+    order: row.order,
+  };
+}
+
 export function StatsTable({ initial }: Props) {
   const router = useRouter();
   const toast = useAdminToast();
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useState(() => initial.map(normalizeStatRow));
   const [pending, setPending] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [draft, setDraft] = useState({ label: "", value: "", color: DEFAULT_PALETTE_COLOR });
 
+  useEffect(() => {
+    setRows(initial.map(normalizeStatRow));
+  }, [initial]);
+
   async function saveRow(row: StatCard) {
+    const payload = statPayload(row);
     try {
       setPending(row.id);
-      await adminJson(`/api/admin/stats/${row.id}`, { method: "PUT", body: JSON.stringify(row) });
+      const saved = await adminJson<StatCard>(`/api/admin/stats/${row.id}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+      setRows((r) => r.map((x) => (x.id === row.id ? normalizeStatRow(saved) : x)));
       toast({ type: "success", message: "Saved" });
       router.refresh();
     } catch {
@@ -37,10 +63,11 @@ export function StatsTable({ initial }: Props) {
     setRows((r) => r.map((x) => (x.id === id ? { ...x, [field]: value } : x)));
   }
 
-  function updateStatColor(row: StatCard, color: string) {
-    const updated = { ...row, color };
-    setRows((r) => r.map((x) => (x.id === row.id ? updated : x)));
-    void saveRow(updated);
+  function updateStatColor(statId: string, newColor: string) {
+    const updated = rows.map((s) => (s.id === statId ? { ...s, color: newColor } : s));
+    const row = updated.find((s) => s.id === statId);
+    setRows(updated);
+    if (row) void saveRow(row);
   }
 
   async function addRow() {
@@ -55,12 +82,12 @@ export function StatsTable({ initial }: Props) {
         body: JSON.stringify({
           label: draft.label,
           value: draft.value,
-          color: draft.color,
+          color: normalizeColor(draft.color),
           icon: "chart",
           order: rows.length,
         }),
       });
-      setRows((r) => [...r, row]);
+      setRows((r) => [...r, normalizeStatRow(row)]);
       setDraft({ label: "", value: "", color: DEFAULT_PALETTE_COLOR });
       toast({ type: "success", message: "Stat added" });
       router.refresh();
@@ -80,7 +107,9 @@ export function StatsTable({ initial }: Props) {
     setRows(reordered);
     try {
       await Promise.all(
-        reordered.map((r) => adminJson(`/api/admin/stats/${r.id}`, { method: "PUT", body: JSON.stringify(r) })),
+        reordered.map((r) =>
+          adminJson(`/api/admin/stats/${r.id}`, { method: "PUT", body: JSON.stringify(statPayload(r)) }),
+        ),
       );
       router.refresh();
     } catch {
@@ -162,7 +191,7 @@ export function StatsTable({ initial }: Props) {
                   <ColorPalettePicker
                     label="Color"
                     selectedColor={row.color || DEFAULT_PALETTE_COLOR}
-                    onChange={(color) => updateStatColor(row, color)}
+                    onChange={(color) => updateStatColor(row.id, color)}
                     compact
                   />
                 </td>

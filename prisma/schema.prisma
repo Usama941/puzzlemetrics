@@ -259,5 +259,7 @@ model SocialLink {
 model SiteSettings {
   id            String   @id @default(cuid())
   companyNumber String   @default("")
+  phone         String   @default("")
+  email         String   @default("")
   updatedAt     DateTime @updatedAt
 }

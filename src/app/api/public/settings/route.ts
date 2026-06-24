@@ -7,7 +7,11 @@ export async function GET() {
   try {
     const settings = await getSiteSettings();
     return NextResponse.json(
-      { companyNumber: settings.companyNumber },
+      {
+        companyNumber: settings.companyNumber,
+        phone: settings.phone,
+        email: settings.email,
+      },
       {
         headers: {
           "Cache-Control": "no-store, max-age=0",
@@ -16,7 +20,7 @@ export async function GET() {
     );
   } catch {
     return NextResponse.json(
-      { companyNumber: "" },
+      { companyNumber: "", phone: "", email: "" },
       {
         headers: {
           "Cache-Control": "no-store, max-age=0",

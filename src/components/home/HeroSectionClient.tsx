@@ -137,14 +137,31 @@ const HeroDashboardMockup = ({ stats }: { stats: { label: string; value: string;
               <div
                 key={stat.label}
                 style={{
+                  borderLeft: `4px solid ${stat.color}`,
                   background: `${stat.color}15`,
-                  borderLeft: `3px solid ${stat.color}`,
                   borderRadius: 12,
-                  padding: "16px 20px",
+                  padding: "20px 24px",
                 }}
               >
-                <span style={{ color: stat.color, fontSize: 32, fontWeight: 800 }}>{stat.value}</span>
-                <p style={{ color: "var(--text-secondary)", marginTop: 4, fontSize: 11 }}>{stat.label}</p>
+                <div
+                  style={{
+                    fontSize: 36,
+                    fontWeight: 800,
+                    color: stat.color,
+                    fontFamily: "var(--font-syne), Syne, sans-serif",
+                  }}
+                >
+                  {stat.value}
+                </div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-secondary)",
+                    marginTop: 4,
+                  }}
+                >
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>

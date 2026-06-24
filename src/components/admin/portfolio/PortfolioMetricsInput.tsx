@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ColorPalettePicker, DEFAULT_PALETTE_COLOR, resolvePaletteColor } from "@/components/admin/ColorPalettePicker";
+import { ColorPalettePicker, DEFAULT_PALETTE_COLOR, normalizeColor } from "@/components/admin/ColorPalettePicker";
 
 export type PortfolioMetricItem = {
   value: string;
@@ -22,7 +22,7 @@ export function parsePortfolioMetrics(m: unknown): PortfolioMetricItem[] {
     .map((x) => ({
       value: String(x.value),
       label: String(x.label),
-      color: resolvePaletteColor(typeof x.color === "string" ? x.color : DEFAULT_PALETTE_COLOR),
+      color: normalizeColor(typeof x.color === "string" ? x.color : DEFAULT_PALETTE_COLOR),
     }));
 }
 

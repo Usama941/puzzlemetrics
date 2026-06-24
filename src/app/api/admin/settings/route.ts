@@ -7,8 +7,11 @@ import { internalServerError } from "@/lib/api-error";
 import { sanitizeString } from "@/lib/validation";
 
 export const dynamic = 'force-dynamic';
+
 const putBodySchema = z.object({
   companyNumber: z.string().max(100),
+  phone: z.string().max(50),
+  email: z.string().max(255),
 });
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -17,7 +20,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   try {
     const settings = await getSiteSettings();
-    return NextResponse.json({ companyNumber: settings.companyNumber });
+    return NextResponse.json({
+      companyNumber: settings.companyNumber,
+      phone: settings.phone,
+      email: settings.email,
+    });
   } catch (err) {
     return internalServerError("admin settings GET", err);
   }
@@ -42,10 +49,23 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     const settings = await prisma.siteSettings.upsert({
       where: { id: SITE_SETTINGS_ID },
-      update: { companyNumber: sanitizeString(parsed.data.companyNumber, 100) },
-      create: { id: SITE_SETTINGS_ID, companyNumber: sanitizeString(parsed.data.companyNumber, 100) },
+      update: {
+        companyNumber: sanitizeString(parsed.data.companyNumber, 100),
+        phone: sanitizeString(parsed.data.phone, 50),
+        email: sanitizeString(parsed.data.email, 255),
+      },
+      create: {
+        id: SITE_SETTINGS_ID,
+        companyNumber: sanitizeString(parsed.data.companyNumber, 100) || "",
+        phone: sanitizeString(parsed.data.phone, 50) || "",
+        email: sanitizeString(parsed.data.email, 255) || "",
+      },
     });
-    return NextResponse.json({ companyNumber: settings.companyNumber });
+    return NextResponse.json({
+      companyNumber: settings.companyNumber,
+      phone: settings.phone,
+      email: settings.email,
+    });
   } catch (err) {
     return internalServerError("admin settings PUT", err);
   }

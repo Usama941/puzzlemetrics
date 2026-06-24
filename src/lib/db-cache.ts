@@ -142,11 +142,8 @@ export async function getHeroContentRow() {
 }
 
 export async function getStatCards() {
-  return unstable_cache(
-    async () => prisma.statCard.findMany({ orderBy: { order: "asc" } }),
-    ["stat-cards"],
-    { revalidate: 60, tags: ["stats"] },
-  )();
+  const { getPublicStatsCached } = await import("@/lib/public-stats");
+  return getPublicStatsCached();
 }
 
 export async function getSocialLinks() {

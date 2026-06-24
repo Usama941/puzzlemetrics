@@ -46,17 +46,6 @@ export const Footer = () => {
                 PuzzleMetrics
               </span>
             </Link>
-            <div className="mt-6 flex flex-col gap-2.5 font-[family-name:var(--font-inter-tight)] text-[14px] leading-relaxed text-[var(--text-secondary)] dark:text-white/90">
-              <a
-                href="mailto:hello@puzzlemetrics.com"
-                className="transition-colors hover:text-[var(--text-primary)] dark:hover:text-white"
-              >
-                hello@puzzlemetrics.com
-              </a>
-              <a href="tel:+442079460958" className="transition-colors hover:text-[var(--text-primary)] dark:hover:text-white">
-                +44 20 7946 0958
-              </a>
-            </div>
           </div>
 
           <FooterColumn title="Quick Links" items={QUICK_LINKS} />

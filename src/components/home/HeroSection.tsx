@@ -1,4 +1,5 @@
-import { getHeroContentRow, getStatCards } from "@/lib/db-cache";
+import { getHeroContentRow } from "@/lib/db-cache";
+import { getPublicStatsCached } from "@/lib/public-stats";
 import { HeroSectionClient, type HeroContentProps } from "./HeroSectionClient";
 
 const defaultHero: HeroContentProps = {
@@ -12,7 +13,7 @@ const defaultHero: HeroContentProps = {
 };
 
 export async function HeroSection() {
-  const [row, statRows] = await Promise.all([getHeroContentRow(), getStatCards()]);
+  const [row, statRows] = await Promise.all([getHeroContentRow(), getPublicStatsCached()]);
   const hero: HeroContentProps = row
     ? {
         headline1: row.headline1,

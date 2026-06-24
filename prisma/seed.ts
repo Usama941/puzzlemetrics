@@ -1124,8 +1124,17 @@ async function main() {
   // ── 14. SITE SETTINGS ─────────────────────────────
   await prisma.siteSettings.upsert({
     where: { id: "default" },
-    update: { companyNumber: "16809669" },
-    create: { id: "default", companyNumber: "16809669" },
+    update: {
+      companyNumber: "16809669",
+      phone: "+44 20 7946 0958",
+      email: "hello@puzzlemetrics.com",
+    },
+    create: {
+      id: "default",
+      companyNumber: "16809669",
+      phone: "+44 20 7946 0958",
+      email: "hello@puzzlemetrics.com",
+    },
   });
   console.log("✅ Site settings seeded");
 

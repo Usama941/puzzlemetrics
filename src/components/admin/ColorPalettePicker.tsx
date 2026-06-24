@@ -23,11 +23,25 @@ export const COLOR_PALETTE = [
 
 export const DEFAULT_PALETTE_COLOR = "#6055D9";
 
+export function normalizeColor(color: string | undefined | null): string {
+  const trimmed = color?.trim();
+  return trimmed || DEFAULT_PALETTE_COLOR;
+}
+
+/** @deprecated Use normalizeColor — kept for callers that only need a fallback */
 export function resolvePaletteColor(color: string | undefined | null): string {
-  if (!color) return DEFAULT_PALETTE_COLOR;
+  return normalizeColor(color);
+}
+
+export function getColorDisplayName(color: string): string {
   const normalized = color.toLowerCase();
   const match = COLOR_PALETTE.find((c) => c.color.toLowerCase() === normalized);
-  return match?.color ?? DEFAULT_PALETTE_COLOR;
+  return match?.name ?? "Custom";
+}
+
+export function isPaletteColor(color: string): boolean {
+  const normalized = color.toLowerCase();
+  return COLOR_PALETTE.some((c) => c.color.toLowerCase() === normalized);
 }
 
 type Props = {
@@ -43,8 +57,9 @@ export const ColorPalettePicker = ({
   onChange,
   compact = false,
 }: Props) => {
-  const resolved = resolvePaletteColor(selectedColor);
+  const activeColor = normalizeColor(selectedColor);
   const swatchSize = compact ? 28 : 32;
+  const customSelected = !isPaletteColor(activeColor);
 
   return (
     <div>
@@ -75,12 +90,12 @@ export const ColorPalettePicker = ({
             width: swatchSize,
             height: swatchSize,
             borderRadius: 8,
-            background: resolved,
+            background: activeColor,
             border: "2px solid rgba(255,255,255,0.2)",
           }}
         />
         <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 13 }}>
-          {COLOR_PALETTE.find((c) => c.color === resolved)?.name ?? "Violet"}
+          {getColorDisplayName(activeColor)}
         </span>
       </div>
 
@@ -91,26 +106,65 @@ export const ColorPalettePicker = ({
           gap: 8,
         }}
       >
-        {COLOR_PALETTE.map(({ color, name }) => (
-          <button
-            key={color}
-            type="button"
-            title={name}
-            onClick={() => onChange(color)}
+        {COLOR_PALETTE.map(({ color, name }) => {
+          const isSelected = activeColor.toLowerCase() === color.toLowerCase();
+          return (
+            <button
+              key={color}
+              type="button"
+              title={name}
+              onClick={() => onChange(color)}
+              style={{
+                width: swatchSize,
+                height: swatchSize,
+                borderRadius: 8,
+                background: color,
+                border: isSelected ? "3px solid white" : "2px solid rgba(255,255,255,0.15)",
+                cursor: "pointer",
+                padding: 0,
+                transition: "transform 0.1s",
+                transform: isSelected ? "scale(1.2)" : "scale(1)",
+              }}
+            />
+          );
+        })}
+
+        <label
+          title="Custom color"
+          style={{
+            width: swatchSize,
+            height: swatchSize,
+            borderRadius: 8,
+            background: customSelected
+              ? activeColor
+              : "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)",
+            border: customSelected ? "3px solid white" : "2px solid rgba(255,255,255,0.15)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            position: "relative",
+            transform: customSelected ? "scale(1.2)" : "scale(1)",
+            transition: "transform 0.1s",
+          }}
+        >
+          <input
+            type="color"
+            value={activeColor}
+            onChange={(e) => onChange(e.target.value)}
             style={{
-              width: swatchSize,
-              height: swatchSize,
-              borderRadius: 8,
-              background: color,
-              border:
-                resolved === color ? "3px solid white" : "2px solid rgba(255,255,255,0.15)",
+              position: "absolute",
+              opacity: 0,
+              width: "100%",
+              height: "100%",
               cursor: "pointer",
-              padding: 0,
-              transition: "transform 0.1s",
-              transform: resolved === color ? "scale(1.2)" : "scale(1)",
             }}
           />
-        ))}
+          {!customSelected ? (
+            <span style={{ fontSize: 16, pointerEvents: "none", color: "white", fontWeight: 700 }}>+</span>
+          ) : null}
+        </label>
       </div>
     </div>
   );

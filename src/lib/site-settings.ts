@@ -24,7 +24,12 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     return prisma.siteSettings.upsert({
       where: { id: SITE_SETTINGS_ID },
       update: { companyNumber: legacyWithNumber.companyNumber.trim() },
-      create: { id: SITE_SETTINGS_ID, companyNumber: legacyWithNumber.companyNumber.trim() },
+      create: {
+        id: SITE_SETTINGS_ID,
+        companyNumber: legacyWithNumber.companyNumber.trim(),
+        phone: "",
+        email: "",
+      },
     });
   }
 
@@ -35,6 +40,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   return prisma.siteSettings.upsert({
     where: { id: SITE_SETTINGS_ID },
     update: {},
-    create: { id: SITE_SETTINGS_ID, companyNumber: "" },
+    create: { id: SITE_SETTINGS_ID, companyNumber: "", phone: "", email: "" },
   });
 }

@@ -9,7 +9,11 @@ export default async function AdminSettingsPage() {
     <div>
       <h1 className="mb-2 text-2xl font-bold text-white">Site Settings</h1>
       <p className="mb-6 text-sm text-white/45">General website settings shown on the public site.</p>
-      <SiteSettingsForm initialCompanyNumber={settings.companyNumber} />
+      <SiteSettingsForm
+        initialCompanyNumber={settings.companyNumber}
+        initialPhone={settings.phone}
+        initialEmail={settings.email}
+      />
     </div>
   );
 }
