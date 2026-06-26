@@ -658,10 +658,11 @@ async function main() {
   ];
   for (const p of portfolioData) {
     const { id: _id, ...updateFields } = p;
+    const metricColor = p.accentColor;
     await prisma.portfolioProject.upsert({
       where: { slug: p.slug },
-      update: { ...updateFields, images: p.images, metrics: p.metrics },
-      create: { ...p, images: p.images, metrics: p.metrics },
+      update: { ...updateFields, metricColor, images: p.images, metrics: p.metrics },
+      create: { ...p, metricColor, images: p.images, metrics: p.metrics },
     });
   }
   console.log("✅ Portfolio projects seeded");

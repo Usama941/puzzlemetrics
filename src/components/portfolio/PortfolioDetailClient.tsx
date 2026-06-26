@@ -4,12 +4,26 @@ import type { PortfolioProject } from "@prisma/client";
 import { motion } from "framer-motion";
 import BookingButton from "@/components/booking/BookingButton";
 import Link from "next/link";
+import { portfolioPanelGradient, resolveMetricColor } from "@/lib/portfolio-colors";
 
-function portfolioMetrics(m: unknown): { value: string; label: string }[] {
+type PortfolioMetric = {
+  value: string;
+  label: string;
+  color: string;
+};
+
+function portfolioMetrics(m: unknown, fallbackColor = "#6055D9"): PortfolioMetric[] {
   if (!Array.isArray(m)) return [];
   return m
-    .filter((x): x is { value: unknown; label: unknown } => !!x && typeof x === "object" && "value" in x && "label" in x)
-    .map((x) => ({ value: String(x.value), label: String(x.label) }));
+    .filter(
+      (x): x is { value: unknown; label: unknown; color?: unknown } =>
+        !!x && typeof x === "object" && "value" in x && "label" in x,
+    )
+    .map((x) => ({
+      value: String(x.value),
+      label: String(x.label),
+      color: typeof x.color === "string" && x.color.trim() ? x.color.trim() : fallbackColor,
+    }));
 }
 
 type ProjectProps = {
@@ -23,13 +37,14 @@ type ContentProps = {
 };
 
 export function PortfolioHeroSection({ project }: ProjectProps) {
-  const metrics = portfolioMetrics(project.metrics);
+  const metricColor = resolveMetricColor(project);
+  const metrics = portfolioMetrics(project.metrics, metricColor);
   const heroSmallMetrics = metrics.slice(0, 3);
 
   return (
     <section
         style={{
-          background: project.bgGradient,
+          background: portfolioPanelGradient(metricColor),
           padding: "100px 24px 80px",
           position: "relative",
           overflow: "hidden",
@@ -165,13 +180,13 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                 <div
                   key={m.label}
                   style={{
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.18)",
+                    background: `${m.color}18`,
+                    border: `1px solid ${m.color}40`,
                     borderRadius: 14,
                     padding: "14px 10px",
                   }}
                 >
-                  <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 22, fontWeight: 800, color: "#fff" }}>{m.value}</div>
+                  <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 22, fontWeight: 800, color: m.color }}>{m.value}</div>
                   <div
                     style={{
                       fontFamily: "Inter Tight, sans-serif",
@@ -194,9 +209,7 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
 }
 
 export function PortfolioDetailContent({ project, prevProject, nextProject }: ContentProps) {
-  const tint12 = `${project.accentColor}12`;
-  const tint30 = `${project.accentColor}30`;
-  const metrics = portfolioMetrics(project.metrics);
+  const metrics = portfolioMetrics(project.metrics, project.accentColor);
 
   return (
     <>
@@ -218,17 +231,20 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
 
       <section style={{ background: "var(--bg-primary)", padding: "60px 24px" }}>
         <div className="mx-auto grid max-w-[1000px] grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-          {metrics.map((m) => (
+          {metrics.map((m) => {
+            const metricTint12 = `${m.color}12`;
+            const metricTint30 = `${m.color}30`;
+            return (
             <div
               key={m.label}
               style={{
-                background: tint12,
-                border: `1px solid ${tint30}`,
+                background: metricTint12,
+                border: `1px solid ${metricTint30}`,
                 borderRadius: 16,
                 padding: 24,
               }}
             >
-              <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 36, fontWeight: 800, color: project.accentColor }}>{m.value}</div>
+              <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 36, fontWeight: 800, color: m.color }}>{m.value}</div>
               <div
                 style={{
                   fontFamily: "Inter Tight, sans-serif",
@@ -243,7 +259,8 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
                 {m.label}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

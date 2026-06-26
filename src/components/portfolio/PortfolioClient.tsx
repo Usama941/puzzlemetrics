@@ -6,6 +6,7 @@ import BookingButton from "@/components/booking/BookingButton";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
+import { portfolioPanelGradient, resolveMetricColor } from "@/lib/portfolio-colors";
 
 export default function PortfolioClient({ projects }: { projects: PortfolioProject[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -419,6 +420,7 @@ function PortfolioCard({
   size: "large" | "small";
 }) {
   const [hovered, setHovered] = useState(false);
+  const metricColor = resolveMetricColor(project);
 
   const ctaStyle: CSSProperties = {
     fontFamily: "Inter Tight, sans-serif",
@@ -460,7 +462,7 @@ function PortfolioCard({
             className="portfolio-card-img"
             style={{
               height: size === "large" ? 220 : 180,
-              background: project.bgGradient,
+              background: portfolioPanelGradient(metricColor),
               position: "relative",
               overflow: "hidden",
               display: "flex",
@@ -487,7 +489,7 @@ function PortfolioCard({
                   color: "rgba(255,255,255,0.95)",
                   letterSpacing: "-0.04em",
                   lineHeight: 1,
-                  textShadow: `0 0 40px ${project.accentColor}88`,
+                  textShadow: `0 0 40px ${metricColor}88`,
                 }}
               >
                 {project.heroMetric}

@@ -45,6 +45,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         tags: body.tags,
         images: body.images,
         accentColor: body.accentColor,
+        metricColor: body.metricColor || "#6055D9",
         bgGradient: body.bgGradient,
         featured: body.featured,
         published: body.published,

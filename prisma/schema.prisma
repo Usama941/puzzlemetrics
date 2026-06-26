@@ -73,6 +73,7 @@ model PortfolioProject {
   tags            String[]
   images          String[] @default([])
   accentColor     String
+  metricColor     String   @default("#6055D9")
   bgGradient      String
   featured        Boolean  @default(false)
   published       Boolean  @default(true)
