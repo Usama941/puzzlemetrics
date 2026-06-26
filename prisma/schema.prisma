@@ -74,6 +74,9 @@ model PortfolioProject {
   images          String[] @default([])
   accentColor     String
   metricColor     String   @default("#6055D9")
+  textColor       String?
+  buttonColor     String?
+  backgroundColor String?
   bgGradient      String
   featured        Boolean  @default(false)
   published       Boolean  @default(true)

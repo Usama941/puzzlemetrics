@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ColorPalettePicker, DEFAULT_PALETTE_COLOR, normalizeColor } from "@/components/admin/ColorPalettePicker";
+import { DEFAULT_PALETTE_COLOR, normalizeColor } from "@/components/admin/ColorPalettePicker";
 
 export type PortfolioMetricItem = {
   value: string;
@@ -29,13 +29,12 @@ export function parsePortfolioMetrics(m: unknown): PortfolioMetricItem[] {
 export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
   const [valueInput, setValueInput] = useState("");
   const [labelInput, setLabelInput] = useState("");
-  const [metricColor, setMetricColor] = useState(DEFAULT_PALETTE_COLOR);
 
   const add = () => {
     const v = valueInput.trim();
     const l = labelInput.trim();
     if (!v || !l) return;
-    onChange([...value, { value: v, label: l, color: metricColor }]);
+    onChange([...value, { value: v, label: l, color: DEFAULT_PALETTE_COLOR }]);
     setValueInput("");
     setLabelInput("");
   };
@@ -121,15 +120,6 @@ export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
         </button>
       </div>
 
-      <div style={{ marginBottom: 12 }}>
-        <ColorPalettePicker
-          label="Metric color"
-          selectedColor={metricColor}
-          onChange={setMetricColor}
-          compact
-        />
-      </div>
-
       <div>
         {value.map((item, i) => (
           <div
@@ -145,18 +135,6 @@ export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
               marginBottom: 8,
             }}
           >
-            <div style={{ flexShrink: 0 }}>
-              <ColorPalettePicker
-                label=""
-                selectedColor={item.color}
-                onChange={(newColor) => {
-                  const next = value.map((m, idx) => (idx === i ? { ...m, color: newColor } : m));
-                  onChange(next);
-                }}
-                compact
-              />
-            </div>
-
             <strong style={{ color: item.color, minWidth: 60 }}>{item.value}</strong>
 
             <span style={{ color: "rgba(255,255,255,0.7)", flex: 1 }}>{item.label}</span>

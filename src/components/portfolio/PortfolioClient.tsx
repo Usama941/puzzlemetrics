@@ -6,8 +6,6 @@ import BookingButton from "@/components/booking/BookingButton";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
-import { portfolioPanelGradient, resolveMetricColor } from "@/lib/portfolio-colors";
-
 export default function PortfolioClient({ projects }: { projects: PortfolioProject[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -420,13 +418,15 @@ function PortfolioCard({
   size: "large" | "small";
 }) {
   const [hovered, setHovered] = useState(false);
-  const metricColor = resolveMetricColor(project);
+  const textColor = project.textColor || "#1A1726";
+  const buttonColor = project.buttonColor || "#6055D9";
+  const backgroundColor = project.backgroundColor || "#6055D9";
 
   const ctaStyle: CSSProperties = {
     fontFamily: "Inter Tight, sans-serif",
     fontSize: 13,
     fontWeight: 600,
-    color: project.accentColor,
+    color: buttonColor,
     display: "flex",
     alignItems: "center",
     gap: hovered ? 8 : 4,
@@ -451,9 +451,9 @@ function PortfolioCard({
           style={{
             borderRadius: 20,
             overflow: "hidden",
-            border: hovered ? `1px solid ${project.accentColor}55` : "1px solid var(--border-color)",
+            border: hovered ? `1px solid ${buttonColor}55` : "1px solid var(--border-color)",
             boxShadow: hovered
-              ? `0 20px 60px ${project.accentColor}22, 0 4px 12px rgba(0,0,0,0.08)`
+              ? `0 20px 60px ${buttonColor}22, 0 4px 12px rgba(0,0,0,0.08)`
               : "0 2px 12px rgba(0,0,0,0.06)",
             background: "var(--bg-card)",
           }}
@@ -462,7 +462,7 @@ function PortfolioCard({
             className="portfolio-card-img"
             style={{
               height: size === "large" ? 220 : 180,
-              background: portfolioPanelGradient(metricColor),
+              background: backgroundColor,
               position: "relative",
               overflow: "hidden",
               display: "flex",
@@ -486,10 +486,10 @@ function PortfolioCard({
                   fontFamily: "Inter Tight, sans-serif",
                   fontSize: size === "large" ? 56 : 44,
                   fontWeight: 800,
-                  color: "rgba(255,255,255,0.95)",
+                  color: "#ffffff",
                   letterSpacing: "-0.04em",
                   lineHeight: 1,
-                  textShadow: `0 0 40px ${metricColor}88`,
+                  textShadow: "0 0 40px rgba(255,255,255,0.25)",
                 }}
               >
                 {project.heroMetric}
@@ -499,7 +499,8 @@ function PortfolioCard({
                   fontFamily: "Inter Tight, sans-serif",
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "rgba(255,255,255,0.6)",
+                  color: "#ffffff",
+                  opacity: 0.75,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   marginTop: 8,
@@ -521,7 +522,7 @@ function PortfolioCard({
                 padding: "4px 12px",
                 fontSize: 11,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.85)",
+                color: textColor,
                 fontFamily: "Inter Tight, sans-serif",
                 letterSpacing: "0.04em",
               }}
@@ -567,7 +568,7 @@ function PortfolioCard({
                   fontFamily: "Inter Tight, sans-serif",
                   fontSize: 12,
                   fontWeight: 600,
-                  color: project.accentColor,
+                  color: textColor,
                   letterSpacing: "0.04em",
                 }}
               >
@@ -583,7 +584,7 @@ function PortfolioCard({
                 fontFamily: "Inter Tight, sans-serif",
                 fontSize: size === "large" ? 20 : 18,
                 fontWeight: 700,
-                color: "var(--text-primary)",
+                color: textColor,
                 letterSpacing: "-0.01em",
                 marginBottom: 6,
                 lineHeight: 1.2,

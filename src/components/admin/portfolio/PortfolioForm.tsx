@@ -4,7 +4,7 @@ import type { PortfolioProject } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ColorPalettePicker } from "@/components/admin/ColorPalettePicker";
+import ColorPicker from "@/components/admin/ColorPicker";
 import ImageManager from "@/components/admin/portfolio/ImageManager";
 import { parsePortfolioMetrics, PortfolioMetricsInput, type PortfolioMetricItem } from "@/components/admin/portfolio/PortfolioMetricsInput";
 import { TagInput } from "@/components/admin/TagInput";
@@ -44,6 +44,9 @@ const empty: Omit<PortfolioProject, "id" | "createdAt" | "updatedAt"> = {
   images: [],
   accentColor: "#6055D9",
   metricColor: "#6055D9",
+  textColor: null,
+  buttonColor: null,
+  backgroundColor: null,
   bgGradient: "linear-gradient(135deg, #1a0533 0%, #2d1b69 50%, #1a0533 100%)",
   featured: false,
   published: true,
@@ -62,7 +65,14 @@ export function PortfolioForm({ initial }: Props) {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const payload = { ...form, images, metrics };
+    const payload = {
+      ...form,
+      images,
+      metrics,
+      textColor: form.textColor,
+      buttonColor: form.buttonColor,
+      backgroundColor: form.backgroundColor,
+    };
     try {
       if (edit && initial) {
         await adminJson(`/api/admin/portfolio/${initial.id}`, {
@@ -164,17 +174,24 @@ export function PortfolioForm({ initial }: Props) {
           <ImageManager images={images} onChange={setImages} />
         </div>
         <div className="sm:col-span-2">
-          <ColorPalettePicker
-            label="Metric color"
-            selectedColor={form.metricColor}
-            onChange={(metricColor) => setForm((f) => ({ ...f, metricColor }))}
+          <ColorPicker
+            label="Card text"
+            value={form.textColor}
+            onChange={(c) => setForm((f) => ({ ...f, textColor: c }))}
           />
         </div>
         <div className="sm:col-span-2">
-          <ColorPalettePicker
-            label="Accent color"
-            selectedColor={form.accentColor}
-            onChange={(accentColor) => setForm((f) => ({ ...f, accentColor }))}
+          <ColorPicker
+            label="Button"
+            value={form.buttonColor}
+            onChange={(c) => setForm((f) => ({ ...f, buttonColor: c }))}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <ColorPicker
+            label="Card background"
+            value={form.backgroundColor}
+            onChange={(c) => setForm((f) => ({ ...f, backgroundColor: c }))}
           />
         </div>
         <div className="sm:col-span-2 flex flex-wrap gap-6">
