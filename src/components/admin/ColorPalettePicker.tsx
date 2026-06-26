@@ -63,19 +63,21 @@ export const ColorPalettePicker = ({
 
   return (
     <div>
-      <label
-        style={{
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.45)",
-          display: "block",
-          marginBottom: 10,
-        }}
-      >
-        {label}
-      </label>
+      {label ? (
+        <label
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.45)",
+            display: "block",
+            marginBottom: 10,
+          }}
+        >
+          {label}
+        </label>
+      ) : null}
 
       <div
         style={{

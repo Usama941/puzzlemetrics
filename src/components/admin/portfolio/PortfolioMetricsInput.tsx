@@ -130,34 +130,37 @@ export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
         />
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+      <div>
         {value.map((item, i) => (
-          <span
+          <div
             key={`${item.value}-${item.label}-${i}`}
             style={{
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
-              gap: 8,
-              background: "rgba(96,85,217,0.15)",
-              border: "1px solid rgba(96,85,217,0.3)",
-              borderRadius: 999,
-              padding: "4px 12px",
-              color: "white",
-              fontSize: 13,
+              gap: 10,
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 12,
+              padding: "10px 14px",
+              marginBottom: 8,
             }}
           >
-            <span
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: item.color,
-                border: "1px solid rgba(255,255,255,0.25)",
-                flexShrink: 0,
-              }}
-            />
-            <strong style={{ color: item.color }}>{item.value}</strong>
-            <span style={{ color: "rgba(255,255,255,0.7)" }}>{item.label}</span>
+            <div style={{ flexShrink: 0 }}>
+              <ColorPalettePicker
+                label=""
+                selectedColor={item.color}
+                onChange={(newColor) => {
+                  const next = value.map((m, idx) => (idx === i ? { ...m, color: newColor } : m));
+                  onChange(next);
+                }}
+                compact
+              />
+            </div>
+
+            <strong style={{ color: item.color, minWidth: 60 }}>{item.value}</strong>
+
+            <span style={{ color: "rgba(255,255,255,0.7)", flex: 1 }}>{item.label}</span>
+
             <button
               type="button"
               onClick={() => remove(i)}
@@ -166,14 +169,14 @@ export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
                 border: "none",
                 color: "rgba(255,255,255,0.5)",
                 cursor: "pointer",
-                fontSize: 16,
+                fontSize: 18,
                 lineHeight: 1,
                 padding: 0,
               }}
             >
               ×
             </button>
-          </span>
+          </div>
         ))}
       </div>
     </div>
