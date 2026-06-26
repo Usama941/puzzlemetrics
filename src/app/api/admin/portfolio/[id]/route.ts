@@ -1,63 +1,72 @@
-import { revalidateTag } from "next/cache";
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { requireAdminApiAccess } from "@/lib/admin-auth";
-import { parseRouteId, sanitizeStringFields } from "@/lib/validation";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(request: NextRequest, context: RouteContext) {
   const denied = await requireAdminApiAccess(request);
   if (denied) return denied;
-  const { id: rawId } = await context.params;
-  const id = parseRouteId(rawId);
-  if (!id) {
-    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  try {
+    const { id } = await context.params;
+    const project = await prisma.portfolioProject.findUnique({ where: { id } });
+    if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(project);
+  } catch (error) {
+    console.error("Portfolio GET error:", error);
+    return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
-  const row = await prisma.portfolioProject.findUnique({ where: { id } });
-  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(row);
 }
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   const denied = await requireAdminApiAccess(request);
   if (denied) return denied;
-  const { id: rawId } = await context.params;
-  const id = parseRouteId(rawId);
-  if (!id) {
-    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
-  }
-  let raw: unknown;
   try {
-    raw = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    const { id } = await context.params;
+    const body = await request.json();
+    const updated = await prisma.portfolioProject.update({
+      where: { id },
+      data: {
+        slug: body.slug,
+        title: body.title,
+        client: body.client,
+        category: body.category,
+        industry: body.industry,
+        location: body.location,
+        year: body.year,
+        tagline: body.tagline,
+        description: body.description,
+        challenge: body.challenge,
+        solution: body.solution,
+        results: body.results,
+        heroMetric: body.heroMetric,
+        heroMetricLabel: body.heroMetricLabel,
+        metrics: body.metrics,
+        tags: body.tags,
+        images: body.images,
+        accentColor: body.accentColor,
+        bgGradient: body.bgGradient,
+        featured: body.featured,
+        published: body.published,
+        order: body.order,
+      },
+    });
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error("Portfolio PUT error:", error);
+    return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
-  const body = sanitizeStringFields(raw as Record<string, unknown>);
-  delete body.id;
-  if (!body.slug || (typeof body.slug === "string" && body.slug.includes(" "))) {
-    const title = typeof body.title === "string" ? body.title : "";
-    body.slug = title
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
-  }
-  const row = await prisma.portfolioProject.update({ where: { id }, data: body });
-  revalidateTag("portfolio");
-  return NextResponse.json(row);
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   const denied = await requireAdminApiAccess(request);
   if (denied) return denied;
-  const { id: rawId } = await context.params;
-  const id = parseRouteId(rawId);
-  if (!id) {
-    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  try {
+    const { id } = await context.params;
+    await prisma.portfolioProject.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Portfolio DELETE error:", error);
+    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
-  await prisma.portfolioProject.delete({ where: { id } });
-  revalidateTag("portfolio");
-  return NextResponse.json({ ok: true });
 }
