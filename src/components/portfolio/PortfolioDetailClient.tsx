@@ -4,7 +4,6 @@ import type { PortfolioProject } from "@prisma/client";
 import { motion } from "framer-motion";
 import BookingButton from "@/components/booking/BookingButton";
 import Link from "next/link";
-import { portfolioPanelGradient, resolveMetricColor } from "@/lib/portfolio-colors";
 
 type PortfolioMetric = {
   value: string;
@@ -37,14 +36,16 @@ type ContentProps = {
 };
 
 export function PortfolioHeroSection({ project }: ProjectProps) {
-  const metricColor = resolveMetricColor(project);
-  const metrics = portfolioMetrics(project.metrics, metricColor);
+  const textColor = project.textColor || "#000000";
+  const buttonColor = project.buttonColor || "#6055D9";
+  const backgroundColor = project.backgroundColor || "#6055D9";
+  const metrics = portfolioMetrics(project.metrics, buttonColor);
   const heroSmallMetrics = metrics.slice(0, 3);
 
   return (
     <section
         style={{
-          background: portfolioPanelGradient(metricColor),
+          background: backgroundColor,
           padding: "100px 24px 80px",
           position: "relative",
           overflow: "hidden",
@@ -64,25 +65,25 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
         <div className="mx-auto grid max-w-[1060px] grid-cols-1 items-center gap-12 lg:grid-cols-2" style={{ position: "relative", zIndex: 1 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-              <Link href="/portfolio" style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", textDecoration: "none" }}>
+              <Link href="/portfolio" style={{ fontSize: 13, color: textColor, opacity: 0.7, textDecoration: "none" }}>
                 Portfolio
               </Link>
-              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 13 }}>/</span>
-              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.95)", fontWeight: 600 }}>{project.title}</span>
+              <span style={{ color: textColor, opacity: 0.35, fontSize: 13 }}>/</span>
+              <span style={{ fontSize: 13, color: textColor, fontWeight: 600 }}>{project.title}</span>
             </div>
 
             <span
               style={{
                 display: "inline-block",
                 marginBottom: 16,
-                background: "rgba(255,255,255,0.1)",
+                background: "rgba(0,0,0,0.2)",
                 backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,255,255,0.2)",
+                border: "1px solid rgba(0,0,0,0.15)",
                 borderRadius: 9999,
                 padding: "5px 14px",
                 fontSize: 11,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.9)",
+                color: textColor,
                 fontFamily: "Inter Tight, sans-serif",
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
@@ -99,7 +100,7 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                 fontFamily: "Inter Tight, sans-serif",
                 fontSize: "clamp(36px, 5vw, 56px)",
                 fontWeight: 800,
-                color: "#fff",
+                color: textColor,
                 letterSpacing: "-0.03em",
                 lineHeight: 1.08,
                 marginBottom: 12,
@@ -113,14 +114,15 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                 fontFamily: "Inter Tight, sans-serif",
                 fontSize: 20,
                 fontWeight: 500,
-                color: "rgba(255,255,255,0.92)",
+                color: textColor,
+                opacity: 0.92,
                 marginBottom: 20,
               }}
             >
               {project.tagline}
             </p>
 
-            <p style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 20 }}>
+            <p style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 14, color: textColor, opacity: 0.6, marginBottom: 20 }}>
               {project.client} · {project.location} · {project.year}
             </p>
 
@@ -133,9 +135,10 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                     fontSize: 12,
                     padding: "5px 12px",
                     borderRadius: 9999,
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    color: "rgba(255,255,255,0.85)",
+                    background: "rgba(0,0,0,0.12)",
+                    border: "1px solid rgba(0,0,0,0.15)",
+                    color: textColor,
+                    opacity: 0.85,
                   }}
                 >
                   {tag}
@@ -151,10 +154,10 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                   fontFamily: "Inter Tight, sans-serif",
                   fontSize: 80,
                   fontWeight: 800,
-                  color: "#fff",
+                  color: textColor,
                   letterSpacing: "-0.04em",
                   lineHeight: 1,
-                  textShadow: "0 0 60px rgba(255,255,255,0.3)",
+                  textShadow: `0 0 60px ${textColor}44`,
                 }}
               >
                 {project.heroMetric}
@@ -164,7 +167,8 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                   fontFamily: "Inter Tight, sans-serif",
                   fontSize: 14,
                   fontWeight: 600,
-                  color: "rgba(255,255,255,0.6)",
+                  color: textColor,
+                  opacity: 0.75,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   marginTop: 10,
@@ -192,7 +196,8 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                       fontFamily: "Inter Tight, sans-serif",
                       fontSize: 11,
                       fontWeight: 500,
-                      color: "rgba(255,255,255,0.55)",
+                      color: textColor,
+                      opacity: 0.55,
                       marginTop: 4,
                       lineHeight: 1.3,
                     }}
@@ -209,7 +214,8 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
 }
 
 export function PortfolioDetailContent({ project, prevProject, nextProject }: ContentProps) {
-  const metrics = portfolioMetrics(project.metrics, project.accentColor);
+  const buttonColor = project.buttonColor || "#6055D9";
+  const metrics = portfolioMetrics(project.metrics, buttonColor);
 
   return (
     <>
@@ -221,7 +227,7 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
             { n: "03", title: "The Results", body: project.results },
           ].map((block) => (
             <div key={block.n}>
-              <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 13, fontWeight: 800, color: project.accentColor, marginBottom: 8 }}>{block.n}</div>
+              <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 13, fontWeight: 800, color: buttonColor, marginBottom: 8 }}>{block.n}</div>
               <h2 style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)", marginBottom: 12 }}>{block.title}</h2>
               <p style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 15, fontWeight: 400, color: "var(--text-secondary)", lineHeight: 1.75 }}>{block.body}</p>
             </div>
@@ -271,7 +277,7 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
               fontFamily: "Inter Tight, sans-serif",
               fontSize: 13,
               fontWeight: 700,
-              color: project.accentColor,
+              color: buttonColor,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               marginBottom: 16,
@@ -327,7 +333,7 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
               <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 4 }}>
                 ← Previous
               </span>
-              <span style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{prevProject.title}</span>
+              <span style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, fontWeight: 700, color: buttonColor }}>{prevProject.title}</span>
             </Link>
           ) : (
             <div />
@@ -338,10 +344,10 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
               fontFamily: "Inter Tight, sans-serif",
               fontSize: 13,
               fontWeight: 600,
-              color: "#6055D9",
+              color: buttonColor,
               textDecoration: "none",
-              background: "rgba(96,85,217,0.08)",
-              border: "1px solid rgba(96,85,217,0.2)",
+              background: `${buttonColor}14`,
+              border: `1px solid ${buttonColor}33`,
               borderRadius: 9999,
               padding: "8px 18px",
             }}
@@ -353,7 +359,7 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
               <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 4 }}>
                 Next →
               </span>
-              <span style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, fontWeight: 700, color: "var(--text-primary)" }}>{nextProject.title}</span>
+              <span style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, fontWeight: 700, color: buttonColor }}>{nextProject.title}</span>
             </Link>
           ) : (
             <div />
@@ -382,7 +388,7 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
             <BookingButton
               source={`portfolio-${project.slug}-project`}
               style={{
-                background: project.accentColor,
+                background: buttonColor,
                 color: "#fff",
                 padding: "13px 28px",
                 borderRadius: 9999,
@@ -390,7 +396,7 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
                 fontWeight: 600,
                 textDecoration: "none",
                 fontFamily: "Inter Tight, sans-serif",
-                boxShadow: `0 0 24px ${project.accentColor}55`,
+                boxShadow: `0 0 24px ${buttonColor}55`,
               }}
             >
               Start a Project →
@@ -399,14 +405,14 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
               source={`portfolio-${project.slug}-call`}
               style={{
                 background: "transparent",
-                color: "var(--text-secondary)",
+                color: buttonColor,
                 padding: "13px 22px",
                 borderRadius: 9999,
                 fontSize: 14,
                 fontWeight: 500,
                 textDecoration: "none",
                 fontFamily: "Inter Tight, sans-serif",
-                border: "1px solid var(--border-color)",
+                border: `1px solid ${buttonColor}55`,
               }}
             >
               Book a Call

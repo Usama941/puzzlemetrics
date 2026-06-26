@@ -418,7 +418,7 @@ function PortfolioCard({
   size: "large" | "small";
 }) {
   const [hovered, setHovered] = useState(false);
-  const textColor = project.textColor || "#1A1726";
+  const textColor = project.textColor || "#000000";
   const buttonColor = project.buttonColor || "#6055D9";
   const backgroundColor = project.backgroundColor || "#6055D9";
 
@@ -486,10 +486,10 @@ function PortfolioCard({
                   fontFamily: "Inter Tight, sans-serif",
                   fontSize: size === "large" ? 56 : 44,
                   fontWeight: 800,
-                  color: "#ffffff",
+                  color: textColor,
                   letterSpacing: "-0.04em",
                   lineHeight: 1,
-                  textShadow: "0 0 40px rgba(255,255,255,0.25)",
+                  textShadow: `0 0 40px ${textColor}44`,
                 }}
               >
                 {project.heroMetric}
@@ -499,7 +499,7 @@ function PortfolioCard({
                   fontFamily: "Inter Tight, sans-serif",
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#ffffff",
+                  color: textColor,
                   opacity: 0.75,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
