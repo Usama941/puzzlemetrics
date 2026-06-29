@@ -3,6 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdminApiAccess } from "@/lib/admin-auth";
 import { sanitizeStringFields } from "@/lib/validation";
+const DEFAULT_METRIC_COLOR = "#6055D9";
+
+function normalizeMetrics(input: unknown) {
+  if (!Array.isArray(input)) return [];
+  return input
+    .filter((x): x is { value?: unknown; label?: unknown; color?: unknown } => !!x && typeof x === "object")
+    .map((x) => ({
+      value: String(x.value ?? ""),
+      label: String(x.label ?? ""),
+      color: typeof x.color === "string" && x.color.trim() ? x.color.trim() : DEFAULT_METRIC_COLOR,
+    }))
+    .filter((x) => x.value.trim() && x.label.trim());
+}
 
 export async function GET(request: NextRequest) {
   const denied = await requireAdminApiAccess(request);
@@ -30,6 +43,7 @@ export async function POST(request: NextRequest) {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
   }
+  body.metrics = normalizeMetrics(body.metrics);
   const row = await prisma.portfolioProject.create({ data: body });
   revalidateTag("portfolio");
   return NextResponse.json(row);

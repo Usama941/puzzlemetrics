@@ -31,6 +31,9 @@ export default {
       },
       fontFamily: {
         sans: ["Inter Tight", "sans-serif"],
+        syne: ["var(--ff-syne)", "sans-serif"],
+        playfair: ["var(--ff-playfair)", "serif"],
+        dm: ["var(--ff-dm)", "sans-serif"],
       },
     },
   },

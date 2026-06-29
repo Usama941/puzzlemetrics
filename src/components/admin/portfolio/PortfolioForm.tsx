@@ -4,7 +4,7 @@ import type { PortfolioProject } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ColorPicker from "@/components/admin/ColorPicker";
+import GradientThemePicker from "@/components/admin/GradientThemePicker";
 import ImageManager from "@/components/admin/portfolio/ImageManager";
 import { parsePortfolioMetrics, PortfolioMetricsInput, type PortfolioMetricItem } from "@/components/admin/portfolio/PortfolioMetricsInput";
 import { TagInput } from "@/components/admin/TagInput";
@@ -47,6 +47,7 @@ const empty: Omit<PortfolioProject, "id" | "createdAt" | "updatedAt"> = {
   textColor: null,
   buttonColor: null,
   backgroundColor: null,
+  theme: "violet",
   bgGradient: "linear-gradient(135deg, #1a0533 0%, #2d1b69 50%, #1a0533 100%)",
   featured: false,
   published: true,
@@ -69,9 +70,7 @@ export function PortfolioForm({ initial }: Props) {
       ...form,
       images,
       metrics,
-      textColor: form.textColor,
-      buttonColor: form.buttonColor,
-      backgroundColor: form.backgroundColor,
+      theme: form.theme ?? "violet",
     };
     try {
       if (edit && initial) {
@@ -174,25 +173,7 @@ export function PortfolioForm({ initial }: Props) {
           <ImageManager images={images} onChange={setImages} />
         </div>
         <div className="sm:col-span-2">
-          <ColorPicker
-            label="Card text"
-            value={form.textColor}
-            onChange={(c) => setForm((f) => ({ ...f, textColor: c }))}
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <ColorPicker
-            label="Button"
-            value={form.buttonColor}
-            onChange={(c) => setForm((f) => ({ ...f, buttonColor: c }))}
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <ColorPicker
-            label="Card background"
-            value={form.backgroundColor}
-            onChange={(c) => setForm((f) => ({ ...f, backgroundColor: c }))}
-          />
+          <GradientThemePicker value={form.theme} onChange={(id) => setForm((f) => ({ ...f, theme: id }))} />
         </div>
         <div className="sm:col-span-2 flex flex-wrap gap-6">
           <ToggleSwitch label="Featured" checked={form.featured} onChange={(featured) => setForm((f) => ({ ...f, featured }))} />

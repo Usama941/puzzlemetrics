@@ -3,6 +3,19 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminApiAccess } from "@/lib/admin-auth";
 
 type RouteContext = { params: Promise<{ id: string }> };
+const DEFAULT_METRIC_COLOR = "#6055D9";
+
+function normalizeMetrics(input: unknown) {
+  if (!Array.isArray(input)) return [];
+  return input
+    .filter((x): x is { value?: unknown; label?: unknown; color?: unknown } => !!x && typeof x === "object")
+    .map((x) => ({
+      value: String(x.value ?? ""),
+      label: String(x.label ?? ""),
+      color: typeof x.color === "string" && x.color.trim() ? x.color.trim() : DEFAULT_METRIC_COLOR,
+    }))
+    .filter((x) => x.value.trim() && x.label.trim());
+}
 
 export async function GET(request: NextRequest, context: RouteContext) {
   const denied = await requireAdminApiAccess(request);
@@ -41,7 +54,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         results: body.results,
         heroMetric: body.heroMetric,
         heroMetricLabel: body.heroMetricLabel,
-        metrics: body.metrics,
+        metrics: normalizeMetrics(body.metrics),
         tags: body.tags,
         images: body.images,
         accentColor: body.accentColor,
@@ -49,6 +62,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         textColor: body.textColor ?? null,
         buttonColor: body.buttonColor ?? null,
         backgroundColor: body.backgroundColor ?? null,
+        theme: body.theme ?? "violet",
         bgGradient: body.bgGradient,
         featured: body.featured,
         published: body.published,

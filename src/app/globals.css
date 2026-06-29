@@ -132,6 +132,9 @@ body::before {
 
 @theme inline {
   --font-sans: var(--font-inter-tight);
+  --font-syne: var(--ff-syne);
+  --font-playfair: var(--ff-playfair);
+  --font-dm: var(--ff-dm);
 }
 
 @keyframes hero-twinkle {

@@ -3,6 +3,7 @@
 import type { PortfolioProject } from "@prisma/client";
 import { AnimatePresence, motion } from "framer-motion";
 import BookingButton from "@/components/booking/BookingButton";
+import { getTheme } from "@/lib/portfolioThemes";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
@@ -239,11 +240,13 @@ export default function PortfolioClient({ projects }: { projects: PortfolioProje
                   aria-pressed={isActive}
                   onClick={() => setActiveCategory(cat)}
                   style={{
+                    position: "relative",
+                    overflow: "hidden",
                     fontFamily: "Inter Tight, sans-serif",
                     fontSize: 13,
                     fontWeight: isActive ? 600 : 500,
                     color: isActive ? "#fff" : "var(--text-secondary)",
-                    background: isActive ? "#6055D9" : "var(--bg-card)",
+                    background: isActive ? "transparent" : "var(--bg-card)",
                     border: isActive ? "1px solid #6055D9" : "1px solid var(--border-color)",
                     borderRadius: 9999,
                     padding: "9px 20px",
@@ -252,76 +255,112 @@ export default function PortfolioClient({ projects }: { projects: PortfolioProje
                     boxShadow: isActive ? "0 0 20px rgba(96,85,217,0.3)" : "none",
                   }}
                 >
-                  {cat}
+                  {isActive ? (
+                    <motion.span
+                      layoutId="portfolio-filter-pill"
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: 9999,
+                        background: "#6055D9",
+                        zIndex: 0,
+                      }}
+                      transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                    />
+                  ) : null}
+                  <span style={{ position: "relative", zIndex: 1 }}>{cat}</span>
                 </button>
               );
             })}
           </motion.div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeCategory}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+          {filtered.length === 0 ? (
+            <p
+              style={{
+                textAlign: "center",
+                fontFamily: "Inter Tight, sans-serif",
+                color: "var(--text-secondary)",
+                padding: "48px 0",
+              }}
             >
-              {filtered.length === 0 ? (
-                <p
-                  style={{
-                    textAlign: "center",
-                    fontFamily: "Inter Tight, sans-serif",
-                    color: "var(--text-secondary)",
-                    padding: "48px 0",
-                  }}
-                >
-                  No projects in this category yet.
-                </p>
-              ) : activeCategory === "All" ? (
-                <>
-                  {featured.length > 0 && (
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
-                        gap: 20,
-                        marginBottom: regular.length > 0 ? 20 : 0,
-                      }}
-                    >
-                      {featured.map((project, i) => (
-                        <PortfolioCard key={project.slug} project={project} index={i} size="large" />
-                      ))}
-                    </div>
-                  )}
-                  {regular.length > 0 && (
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-                        gap: 20,
-                      }}
-                    >
-                      {regular.map((project, i) => (
-                        <PortfolioCard key={project.slug} project={project} index={i} size="small" />
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
+              No projects in this category yet.
+            </p>
+          ) : activeCategory === "All" ? (
+            <>
+              {featured.length > 0 && (
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
+                    gap: 20,
+                    marginBottom: regular.length > 0 ? 20 : 0,
+                  }}
+                >
+                  <AnimatePresence mode="popLayout">
+                    {featured.map((project, i) => (
+                      <motion.div
+                        key={project.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                      >
+                        <PortfolioCard project={project} index={i} size="large" />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+              {regular.length > 0 && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
                     gap: 20,
                   }}
                 >
-                  {filtered.map((project, i) => (
-                    <PortfolioCard key={project.slug} project={project} index={i} size="large" />
-                  ))}
+                  <AnimatePresence mode="popLayout">
+                    {regular.map((project, i) => (
+                      <motion.div
+                        key={project.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                      >
+                        <PortfolioCard project={project} index={i} size="small" />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
-            </motion.div>
-          </AnimatePresence>
+            </>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+                gap: 20,
+              }}
+            >
+              <AnimatePresence mode="popLayout">
+                {filtered.map((project, i) => (
+                  <motion.div
+                    key={project.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                  >
+                    <PortfolioCard project={project} index={i} size="large" />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
         </div>
       </section>
 
@@ -418,15 +457,12 @@ function PortfolioCard({
   size: "large" | "small";
 }) {
   const [hovered, setHovered] = useState(false);
-  const textColor = project.textColor || "#000000";
-  const buttonColor = project.buttonColor || "#6055D9";
-  const backgroundColor = project.backgroundColor || "#6055D9";
+  const t = getTheme(project.theme);
 
   const ctaStyle: CSSProperties = {
-    fontFamily: "Inter Tight, sans-serif",
     fontSize: 13,
     fontWeight: 600,
-    color: buttonColor,
+    color: t.accent,
     display: "flex",
     alignItems: "center",
     gap: hovered ? 8 : 4,
@@ -451,9 +487,9 @@ function PortfolioCard({
           style={{
             borderRadius: 20,
             overflow: "hidden",
-            border: hovered ? `1px solid ${buttonColor}55` : "1px solid var(--border-color)",
+            border: hovered ? `1px solid ${t.accent}55` : "1px solid var(--border-color)",
             boxShadow: hovered
-              ? `0 20px 60px ${buttonColor}22, 0 4px 12px rgba(0,0,0,0.08)`
+              ? `0 20px 60px ${t.accent}22, 0 4px 12px rgba(0,0,0,0.08)`
               : "0 2px 12px rgba(0,0,0,0.06)",
             background: "var(--bg-card)",
           }}
@@ -462,7 +498,7 @@ function PortfolioCard({
             className="portfolio-card-img"
             style={{
               height: size === "large" ? 220 : 180,
-              background: backgroundColor,
+              background: t.gradient,
               position: "relative",
               overflow: "hidden",
               display: "flex",
@@ -479,27 +515,38 @@ function PortfolioCard({
                 backgroundSize: "32px 32px",
               }}
             />
+            <div
+              style={{
+                position: "absolute",
+                top: -40,
+                right: -40,
+                width: 180,
+                height: 180,
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%)",
+                pointerEvents: "none",
+              }}
+            />
 
             <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
               <div
+                className="tracking-tight"
                 style={{
-                  fontFamily: "Inter Tight, sans-serif",
                   fontSize: size === "large" ? 56 : 44,
                   fontWeight: 800,
-                  color: textColor,
+                  color: "#ffffff",
                   letterSpacing: "-0.04em",
                   lineHeight: 1,
-                  textShadow: `0 0 40px ${textColor}44`,
+                  textShadow: "0 0 40px rgba(255,255,255,0.25)",
                 }}
               >
                 {project.heroMetric}
               </div>
               <div
                 style={{
-                  fontFamily: "Inter Tight, sans-serif",
                   fontSize: 12,
                   fontWeight: 600,
-                  color: textColor,
+                  color: "#ffffff",
                   opacity: 0.75,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
@@ -515,15 +562,14 @@ function PortfolioCard({
                 position: "absolute",
                 top: 16,
                 left: 16,
-                background: "rgba(0,0,0,0.4)",
+                background: "rgba(255,255,255,0.15)",
                 backdropFilter: "blur(8px)",
                 border: "1px solid rgba(255,255,255,0.15)",
                 borderRadius: 9999,
                 padding: "4px 12px",
                 fontSize: 11,
                 fontWeight: 600,
-                color: textColor,
-                fontFamily: "Inter Tight, sans-serif",
+                color: "#ffffff",
                 letterSpacing: "0.04em",
               }}
             >
@@ -564,11 +610,11 @@ function PortfolioCard({
               }}
             >
               <span
+                className="italic"
                 style={{
-                  fontFamily: "Inter Tight, sans-serif",
                   fontSize: 12,
                   fontWeight: 600,
-                  color: textColor,
+                  color: t.accent,
                   letterSpacing: "0.04em",
                 }}
               >
@@ -580,11 +626,11 @@ function PortfolioCard({
             </div>
 
             <h3
+              className="tracking-tight"
               style={{
-                fontFamily: "Inter Tight, sans-serif",
                 fontSize: size === "large" ? 20 : 18,
                 fontWeight: 700,
-                color: textColor,
+                color: "var(--text-primary)",
                 letterSpacing: "-0.01em",
                 marginBottom: 6,
                 lineHeight: 1.2,
@@ -595,7 +641,6 @@ function PortfolioCard({
 
             <p
               style={{
-                fontFamily: "Inter Tight, sans-serif",
                 fontSize: 13,
                 color: "var(--text-secondary)",
                 lineHeight: 1.6,
@@ -623,7 +668,6 @@ function PortfolioCard({
                   <span
                     key={tag}
                     style={{
-                      fontFamily: "Inter Tight, sans-serif",
                       fontSize: 11,
                       fontWeight: 500,
                       color: "var(--text-muted)",

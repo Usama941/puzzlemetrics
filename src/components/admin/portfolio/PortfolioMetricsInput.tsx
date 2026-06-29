@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { DEFAULT_PALETTE_COLOR, normalizeColor } from "@/components/admin/ColorPalettePicker";
+import ColorPicker from "@/components/admin/ColorPicker";
+
+const DEFAULT_METRIC_COLOR = "#6055D9";
 
 export type PortfolioMetricItem = {
   value: string;
@@ -22,21 +24,24 @@ export function parsePortfolioMetrics(m: unknown): PortfolioMetricItem[] {
     .map((x) => ({
       value: String(x.value),
       label: String(x.label),
-      color: normalizeColor(typeof x.color === "string" ? x.color : DEFAULT_PALETTE_COLOR),
+      color: typeof x.color === "string" && x.color.trim() ? x.color.trim() : DEFAULT_METRIC_COLOR,
     }));
 }
 
 export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
   const [valueInput, setValueInput] = useState("");
   const [labelInput, setLabelInput] = useState("");
+  const [colorInput, setColorInput] = useState(DEFAULT_METRIC_COLOR);
 
   const add = () => {
     const v = valueInput.trim();
     const l = labelInput.trim();
     if (!v || !l) return;
-    onChange([...value, { value: v, label: l, color: DEFAULT_PALETTE_COLOR }]);
+    const c = colorInput.trim() || DEFAULT_METRIC_COLOR;
+    onChange([...value, { value: v, label: l, color: c }]);
     setValueInput("");
     setLabelInput("");
+    setColorInput(DEFAULT_METRIC_COLOR);
   };
 
   const remove = (index: number) => {
@@ -119,6 +124,9 @@ export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
           Add
         </button>
       </div>
+      <div style={{ marginBottom: 10, maxWidth: 260 }}>
+        <ColorPicker label="Color" value={colorInput} onChange={setColorInput} />
+      </div>
 
       <div>
         {value.map((item, i) => (
@@ -138,6 +146,16 @@ export const PortfolioMetricsInput = ({ value, onChange }: Props) => {
             <strong style={{ color: item.color, minWidth: 60 }}>{item.value}</strong>
 
             <span style={{ color: "rgba(255,255,255,0.7)", flex: 1 }}>{item.label}</span>
+            <div style={{ width: 180, minWidth: 180 }}>
+              <ColorPicker
+                label=""
+                value={item.color}
+                onChange={(nextColor) => {
+                  const color = nextColor.trim() || DEFAULT_METRIC_COLOR;
+                  onChange(value.map((m, idx) => (idx === i ? { ...m, color } : m)));
+                }}
+              />
+            </div>
 
             <button
               type="button"

@@ -3,6 +3,7 @@
 import type { PortfolioProject } from "@prisma/client";
 import { motion } from "framer-motion";
 import BookingButton from "@/components/booking/BookingButton";
+import { getTheme } from "@/lib/portfolioThemes";
 import Link from "next/link";
 
 type PortfolioMetric = {
@@ -11,7 +12,7 @@ type PortfolioMetric = {
   color: string;
 };
 
-function portfolioMetrics(m: unknown, fallbackColor = "#6055D9"): PortfolioMetric[] {
+function portfolioMetrics(m: unknown, fallbackColor: string): PortfolioMetric[] {
   if (!Array.isArray(m)) return [];
   return m
     .filter(
@@ -36,16 +37,16 @@ type ContentProps = {
 };
 
 export function PortfolioHeroSection({ project }: ProjectProps) {
-  const textColor = project.textColor || "#000000";
-  const buttonColor = project.buttonColor || "#6055D9";
-  const backgroundColor = project.backgroundColor || "#6055D9";
-  const metrics = portfolioMetrics(project.metrics, buttonColor);
+  const textColor = "#FFFFFF";
+  const heroTextShadow = "0 1px 3px rgba(0,0,0,0.35), 0 0 1px rgba(0,0,0,0.5)";
+  const t = getTheme(project.theme);
+  const metrics = portfolioMetrics(project.metrics, t.accent);
   const heroSmallMetrics = metrics.slice(0, 3);
 
   return (
     <section
         style={{
-          background: backgroundColor,
+          background: t.gradient,
           padding: "100px 24px 80px",
           position: "relative",
           overflow: "hidden",
@@ -76,34 +77,35 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
               style={{
                 display: "inline-block",
                 marginBottom: 16,
-                background: "rgba(0,0,0,0.2)",
+                background: "rgba(255,255,255,0.15)",
                 backdropFilter: "blur(10px)",
-                border: "1px solid rgba(0,0,0,0.15)",
+                border: "1px solid rgba(255,255,255,0.25)",
                 borderRadius: 9999,
                 padding: "5px 14px",
                 fontSize: 11,
                 fontWeight: 600,
                 color: textColor,
-                fontFamily: "Inter Tight, sans-serif",
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
+                textShadow: heroTextShadow,
               }}
             >
               {project.category}
             </span>
 
             <motion.h1
+              className="tracking-tight"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
               style={{
-                fontFamily: "Inter Tight, sans-serif",
                 fontSize: "clamp(36px, 5vw, 56px)",
                 fontWeight: 800,
                 color: textColor,
                 letterSpacing: "-0.03em",
                 lineHeight: 1.08,
                 marginBottom: 12,
+                textShadow: heroTextShadow,
               }}
             >
               {project.title}
@@ -111,19 +113,19 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
 
             <p
               style={{
-                fontFamily: "Inter Tight, sans-serif",
                 fontSize: 20,
                 fontWeight: 500,
                 color: textColor,
                 opacity: 0.92,
                 marginBottom: 20,
+                textShadow: heroTextShadow,
               }}
             >
               {project.tagline}
             </p>
 
-            <p style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 14, color: textColor, opacity: 0.6, marginBottom: 20 }}>
-              {project.client} · {project.location} · {project.year}
+            <p style={{ fontSize: 14, color: textColor, opacity: 0.6, marginBottom: 20 }}>
+              <span className="italic">{project.client}</span> · {project.location} · {project.year}
             </p>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -131,7 +133,6 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                 <span
                   key={tag}
                   style={{
-                    fontFamily: "Inter Tight, sans-serif",
                     fontSize: 12,
                     padding: "5px 12px",
                     borderRadius: 9999,
@@ -150,21 +151,20 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
           <div style={{ textAlign: "center" }}>
             <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
               <div
+                className="tracking-tight"
                 style={{
-                  fontFamily: "Inter Tight, sans-serif",
                   fontSize: 80,
                   fontWeight: 800,
                   color: textColor,
                   letterSpacing: "-0.04em",
                   lineHeight: 1,
-                  textShadow: `0 0 60px ${textColor}44`,
+                  textShadow: heroTextShadow,
                 }}
               >
                 {project.heroMetric}
               </div>
               <div
                 style={{
-                  fontFamily: "Inter Tight, sans-serif",
                   fontSize: 14,
                   fontWeight: 600,
                   color: textColor,
@@ -173,6 +173,7 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                   letterSpacing: "0.08em",
                   marginTop: 10,
                   marginBottom: 24,
+                  textShadow: heroTextShadow,
                 }}
               >
                 {project.heroMetricLabel}
@@ -184,22 +185,22 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
                 <div
                   key={m.label}
                   style={{
-                    background: `${m.color}18`,
-                    border: `1px solid ${m.color}40`,
+                    background: "rgba(255,255,255,0.14)",
+                    border: "1px solid rgba(255,255,255,0.25)",
                     borderRadius: 14,
                     padding: "14px 10px",
                   }}
                 >
-                  <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 22, fontWeight: 800, color: m.color }}>{m.value}</div>
+                  <div className="tracking-tight" style={{ fontSize: 22, fontWeight: 800, color: t.accent, textShadow: heroTextShadow }}>{m.value}</div>
                   <div
                     style={{
-                      fontFamily: "Inter Tight, sans-serif",
                       fontSize: 11,
                       fontWeight: 500,
                       color: textColor,
                       opacity: 0.55,
                       marginTop: 4,
                       lineHeight: 1.3,
+                      textShadow: heroTextShadow,
                     }}
                   >
                     {m.label}
@@ -214,8 +215,8 @@ export function PortfolioHeroSection({ project }: ProjectProps) {
 }
 
 export function PortfolioDetailContent({ project, prevProject, nextProject }: ContentProps) {
-  const buttonColor = project.buttonColor || "#6055D9";
-  const metrics = portfolioMetrics(project.metrics, buttonColor);
+  const t = getTheme(project.theme);
+  const metrics = portfolioMetrics(project.metrics, t.accent);
 
   return (
     <>
@@ -227,9 +228,9 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
             { n: "03", title: "The Results", body: project.results },
           ].map((block) => (
             <div key={block.n}>
-              <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 13, fontWeight: 800, color: buttonColor, marginBottom: 8 }}>{block.n}</div>
-              <h2 style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 18, fontWeight: 700, color: "var(--text-primary)", marginBottom: 12 }}>{block.title}</h2>
-              <p style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 15, fontWeight: 400, color: "var(--text-secondary)", lineHeight: 1.75 }}>{block.body}</p>
+              <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 13, fontWeight: 800, color: t.accent, marginBottom: 8 }}>{block.n}</div>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", marginBottom: 12 }}>{block.title}</h2>
+              <p style={{ fontSize: 15, fontWeight: 400, color: "var(--text-secondary)", lineHeight: 1.75 }}>{block.body}</p>
             </div>
           ))}
         </div>
@@ -250,10 +251,9 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
                 padding: 24,
               }}
             >
-              <div style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 36, fontWeight: 800, color: m.color }}>{m.value}</div>
+              <div className="tracking-tight" style={{ fontSize: 36, fontWeight: 800, color: m.color }}>{m.value}</div>
               <div
                 style={{
-                  fontFamily: "Inter Tight, sans-serif",
                   fontSize: 13,
                   fontWeight: 500,
                   color: "var(--text-muted)",
@@ -274,10 +274,9 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
         <div className="mx-auto max-w-[720px]">
           <h2
             style={{
-              fontFamily: "Inter Tight, sans-serif",
               fontSize: 13,
               fontWeight: 700,
-              color: buttonColor,
+              color: t.accent,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
               marginBottom: 16,
@@ -286,7 +285,7 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
           >
             Project narrative
           </h2>
-          <p style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.85, textAlign: "center" }}>{project.description}</p>
+          <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.85, textAlign: "center" }}>{project.description}</p>
         </div>
       </section>
 
@@ -294,7 +293,6 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
         <div className="mx-auto max-w-[800px] text-center">
           <h3
             style={{
-              fontFamily: "Inter Tight, sans-serif",
               fontSize: 14,
               fontWeight: 700,
               color: "var(--text-muted)",
@@ -310,7 +308,6 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
               <span
                 key={tag}
                 style={{
-                  fontFamily: "Inter Tight, sans-serif",
                   fontSize: 13,
                   padding: "8px 16px",
                   borderRadius: 9999,
@@ -330,10 +327,10 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
         <div className="mx-auto flex max-w-[900px] flex-wrap items-center justify-between gap-6">
           {prevProject ? (
             <Link href={`/portfolio/${prevProject.slug}`} style={{ textDecoration: "none" }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 4 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: t.accent, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 4 }}>
                 ← Previous
               </span>
-              <span style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, fontWeight: 700, color: buttonColor }}>{prevProject.title}</span>
+              <span className="tracking-tight" style={{ fontSize: 16, fontWeight: 700, color: t.accent }}>{prevProject.title}</span>
             </Link>
           ) : (
             <div />
@@ -341,13 +338,12 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
           <Link
             href="/portfolio"
             style={{
-              fontFamily: "Inter Tight, sans-serif",
               fontSize: 13,
               fontWeight: 600,
-              color: buttonColor,
+              color: t.accent,
               textDecoration: "none",
-              background: `${buttonColor}14`,
-              border: `1px solid ${buttonColor}33`,
+              background: `${t.accent}14`,
+              border: `1px solid ${t.accent}33`,
               borderRadius: 9999,
               padding: "8px 18px",
             }}
@@ -356,10 +352,10 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
           </Link>
           {nextProject ? (
             <Link href={`/portfolio/${nextProject.slug}`} style={{ textDecoration: "none", textAlign: "right" }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 4 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: t.accent, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 4 }}>
                 Next →
               </span>
-              <span style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, fontWeight: 700, color: buttonColor }}>{nextProject.title}</span>
+              <span className="tracking-tight" style={{ fontSize: 16, fontWeight: 700, color: t.accent }}>{nextProject.title}</span>
             </Link>
           ) : (
             <div />
@@ -370,8 +366,8 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
       <section style={{ background: "var(--bg-primary)", padding: "80px 24px", borderTop: "1px solid var(--border-color)", textAlign: "center" }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} style={{ maxWidth: 560, margin: "0 auto" }}>
           <h2
+            className="tracking-tight"
             style={{
-              fontFamily: "Inter Tight, sans-serif",
               fontSize: "clamp(26px, 3.5vw, 36px)",
               fontWeight: 800,
               color: "var(--text-primary)",
@@ -381,22 +377,21 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
           >
             Ready to build something like this?
           </h2>
-          <p style={{ fontFamily: "Inter Tight, sans-serif", fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 28 }}>
+          <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 28 }}>
             Tell us about your goals — we&apos;ll map an approach and timeline on a short call.
           </p>
           <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
             <BookingButton
               source={`portfolio-${project.slug}-project`}
               style={{
-                background: buttonColor,
+                background: t.accent,
                 color: "#fff",
                 padding: "13px 28px",
                 borderRadius: 9999,
                 fontSize: 14,
                 fontWeight: 600,
                 textDecoration: "none",
-                fontFamily: "Inter Tight, sans-serif",
-                boxShadow: `0 0 24px ${buttonColor}55`,
+                boxShadow: `0 0 24px ${t.accent}55`,
               }}
             >
               Start a Project →
@@ -405,14 +400,13 @@ export function PortfolioDetailContent({ project, prevProject, nextProject }: Co
               source={`portfolio-${project.slug}-call`}
               style={{
                 background: "transparent",
-                color: buttonColor,
+                color: t.accent,
                 padding: "13px 22px",
                 borderRadius: 9999,
                 fontSize: 14,
                 fontWeight: 500,
                 textDecoration: "none",
-                fontFamily: "Inter Tight, sans-serif",
-                border: `1px solid ${buttonColor}55`,
+                border: `1px solid ${t.accent}55`,
               }}
             >
               Book a Call

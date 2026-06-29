@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter_Tight } from "next/font/google";
+import { DM_Sans, Inter_Tight, Playfair_Display, Syne } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { PublicSiteChrome } from "@/components/layout/PublicSiteChrome";
 import { BookingProvider } from "@/context/BookingContext";
@@ -14,6 +14,28 @@ const interTight = Inter_Tight({
   weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
   preload: true,
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--ff-syne",
+  weight: ["700", "800"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--ff-playfair",
+  weight: ["600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--ff-dm",
+  weight: ["300", "400", "500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -49,7 +71,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={interTight.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${interTight.variable} ${syne.variable} ${playfair.variable} ${dmSans.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
