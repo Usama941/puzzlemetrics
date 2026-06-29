@@ -71,6 +71,18 @@ export async function getPortfolioProjects() {
   )();
 }
 
+export async function getProducts() {
+  return unstable_cache(
+    async () =>
+      prisma.product.findMany({
+        where: { published: true },
+        orderBy: { order: "asc" },
+      }),
+    ["products"],
+    { revalidate: 60, tags: ["products"] },
+  )();
+}
+
 export async function getPortfolioBySlug(slug: string) {
   return unstable_cache(
     async () => prisma.portfolioProject.findUnique({ where: { slug } }),

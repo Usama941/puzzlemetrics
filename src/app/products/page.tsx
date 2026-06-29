@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import BookingButton from "@/components/booking/BookingButton";
+import { ProductSection } from "@/components/products/ProductSection";
+import { getProducts } from "@/lib/db-cache";
 
 export const metadata: Metadata = {
   title: "Products — PuzzleMetrics",
   description:
     "City Rosters and Lead Gen Platform — two live AI-powered products built in-house by PuzzleMetrics.",
 };
-
-const checkIcon = (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6055D9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
 
 function FeatureIcon({ children }: { children: React.ReactNode }) {
   return (
@@ -27,10 +23,11 @@ function FeatureIcon({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const products = await getProducts();
+
   return (
     <>
-      {/* —— HERO —— */}
       <section
         className="relative overflow-hidden px-6 pb-20 pt-[100px] text-center"
         style={{
@@ -96,276 +93,10 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* —— CITY ROSTERS —— */}
-      <section className="bg-[var(--bg-primary)] px-6 py-24">
-        <div className="mx-auto grid max-w-[1160px] grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-[72px]">
-          <div>
-            <div className="mb-5 flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(34,197,94,0.25)] bg-[rgba(34,197,94,0.1)] px-3 py-1 font-[family-name:var(--font-inter-tight)] text-[11px] font-bold uppercase tracking-[0.08em] text-[#22C55E]">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22C55E] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
-                </span>
-                LIVE
-              </span>
-              <span className="font-[family-name:var(--font-inter-tight)] text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--text-muted)]">
-                PRODUCT 01
-              </span>
-            </div>
-            <h2 className="mb-3.5 font-[family-name:var(--font-inter-tight)] text-[clamp(32px,4vw,46px)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[var(--text-primary)]">
-              City Rosters
-            </h2>
-            <p className="mb-[18px] font-[family-name:var(--font-inter-tight)] text-[18px] font-medium text-[#6055D9]">
-              The AI-powered sports management platform
-            </p>
-            <p className="mb-8 font-[family-name:var(--font-inter-tight)] text-[15px] font-normal leading-[1.7] text-[var(--text-secondary)]">
-              City Rosters gives sports clubs, academies, and coaches a single platform to manage rosters, schedules, player payments, and
-              performance analytics. AI powers smart scheduling, player matching, and financial reporting.
-            </p>
-            <ul className="mb-8 space-y-2.5">
-              {[
-                "Smart roster & schedule management",
-                "AI-powered player performance analytics",
-                "Integrated payment processing",
-                "Multi-club & multi-market support",
-              ].map((t) => (
-                <li key={t} className="flex gap-2.5 font-[family-name:var(--font-inter-tight)] text-[14px] text-[var(--text-secondary)]">
-                  <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-[rgba(96,85,217,0.2)] bg-[rgba(96,85,217,0.1)]">
-                    {checkIcon}
-                  </span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <div className="mb-8 flex flex-wrap gap-7 border-t border-[var(--border-color)] pt-7">
-              {[
-                { n: "1,200+", l: "Active Users" },
-                { n: "5", l: "Global Markets" },
-                { n: "3+", l: "Years Running" },
-              ].map((s) => (
-                <div key={s.l}>
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[26px] font-extrabold tracking-[-0.02em] text-[#6055D9]">{s.n}</div>
-                  <div className="mt-0.5 font-[family-name:var(--font-inter-tight)] text-[12px] font-normal uppercase tracking-[0.06em] text-[var(--text-muted)]">
-                    {s.l}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <BookingButton
-              source="products-city-rosters"
-              className="inline-flex items-center gap-2 rounded-full bg-[#6055D9] px-7 py-3.5 font-[family-name:var(--font-inter-tight)] text-[14px] font-semibold text-white shadow-[0_0_24px_rgba(96,85,217,0.35)] transition-opacity duration-200 hover:opacity-95"
-              style={{ textDecoration: "none" }}
-            >
-              Explore City Rosters →
-            </BookingButton>
-          </div>
+      {products.map((product, index) => (
+        <ProductSection key={product.id} product={product} index={index} />
+      ))}
 
-          <div
-            className="overflow-hidden rounded-[20px] border border-[rgba(96,85,217,0.12)] bg-[#F8F9FF] shadow-[0_24px_64px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.06)] dark:border-[rgba(96,85,217,0.2)]"
-          >
-            <div className="flex items-center gap-2 bg-[#EEEEF8] px-4 py-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28CA41]" />
-              <div className="ml-2 flex-1 rounded-md bg-white px-3 py-1 font-[family-name:var(--font-inter-tight)] text-[11px] text-[rgba(0,0,0,0.35)]">
-                app.cityrosters.com
-              </div>
-            </div>
-            <div className="bg-white p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <span className="font-[family-name:var(--font-inter-tight)] text-[14px] font-bold text-[#0a0a14]">City Rosters Dashboard</span>
-                <span className="flex items-center gap-1 font-[family-name:var(--font-inter-tight)] text-[11px] text-[#22C55E]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
-                  Live
-                </span>
-              </div>
-              <div className="mb-4 grid grid-cols-3 gap-2.5">
-                {[
-                  { n: "284", l: "Players" },
-                  { n: "12", l: "Clubs" },
-                  { n: "98%", l: "Uptime" },
-                ].map((x) => (
-                  <div key={x.l} className="rounded-[10px] bg-[#F4F3FD] p-3">
-                    <div className="font-[family-name:var(--font-inter-tight)] text-[18px] font-bold text-[#6055D9]">{x.n}</div>
-                    <div className="mt-0.5 font-[family-name:var(--font-inter-tight)] text-[10px] uppercase tracking-[0.05em] text-[rgba(0,0,0,0.45)]">
-                      {x.l}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mb-3 rounded-[10px] bg-[#F4F3FD] p-3">
-                <div className="mb-2 font-[family-name:var(--font-inter-tight)] text-[9px] font-semibold uppercase tracking-wide text-[#6055D9]">
-                  UPCOMING MATCHES
-                </div>
-                {[
-                  ["Lions FC vs Eagles", "Today 3PM"],
-                  ["Tigers vs Wolves", "Fri 5PM"],
-                  ["Hawks vs Bears", "Sat 11AM"],
-                ].map(([a, b]) => (
-                  <div key={a} className="flex justify-between border-b border-[rgba(0,0,0,0.06)] py-1.5 last:border-0">
-                    <span className="font-[family-name:var(--font-inter-tight)] text-[12px] text-[#0a0a14]">{a}</span>
-                    <span className="font-[family-name:var(--font-inter-tight)] text-[11px] text-[rgba(0,0,0,0.45)]">{b}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1 rounded-[10px] bg-[#F4F3FD] px-3 py-2.5">
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[16px] font-bold text-[#0a0a14]">£12,450</div>
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[10px] text-[rgba(0,0,0,0.45)]">Revenue MTD</div>
-                </div>
-                <div className="flex-1 rounded-[10px] bg-[#F4F3FD] px-3 py-2.5">
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[16px] font-bold text-[#22C55E]">94%</div>
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[10px] text-[rgba(0,0,0,0.45)]">Payment Rate</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* —— LEAD GEN —— */}
-      <section className="border-t border-[var(--border-color)] bg-[var(--bg-secondary)] px-6 py-24">
-        <div className="mx-auto grid max-w-[1160px] grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-[72px]">
-          <div className="order-2 overflow-hidden rounded-[20px] border border-[rgba(14,165,233,0.15)] bg-[#F5FAFF] shadow-[0_24px_64px_rgba(14,165,233,0.08),0_0_0_1px_rgba(14,165,233,0.06)] lg:order-1">
-            <div className="flex items-center gap-2 bg-[#E8F4FC] px-4 py-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28CA41]" />
-              <div className="ml-2 flex-1 rounded-md bg-white px-3 py-1 font-[family-name:var(--font-inter-tight)] text-[11px] text-[rgba(0,0,0,0.35)]">
-                app.leadgen.puzzlemetrics.com
-              </div>
-            </div>
-            <div className="bg-white p-5">
-              <div className="mb-3.5 flex items-center justify-between">
-                <span className="font-[family-name:var(--font-inter-tight)] text-[14px] font-bold text-[#0a0a14]">AI Lead Engine</span>
-                <span className="font-[family-name:var(--font-inter-tight)] text-[11px] text-[#22C55E]">
-                  Live · Scoring active
-                </span>
-              </div>
-              <div className="mb-3.5">
-                <div className="mb-1 font-[family-name:var(--font-inter-tight)] text-[11px] uppercase text-[rgba(0,0,0,0.45)]">
-                  Today&apos;s Pipeline Score
-                </div>
-                <div className="mb-2 flex items-baseline gap-1">
-                  <span className="font-[family-name:var(--font-inter-tight)] text-[32px] font-extrabold text-[#0EA5E9]">94</span>
-                  <span className="font-[family-name:var(--font-inter-tight)] text-[16px] text-[rgba(0,0,0,0.35)]">/100</span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[#EFF6FF]">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: "94%",
-                      background: "linear-gradient(90deg, #0EA5E9, #6055D9)",
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="mb-3 overflow-hidden rounded-[10px] border border-[rgba(0,0,0,0.06)]">
-                <div className="grid grid-cols-3 gap-0 bg-[#F0F9FF] px-3 py-2 font-[family-name:var(--font-inter-tight)] text-[10px] font-medium uppercase tracking-wide text-[rgba(0,0,0,0.45)]">
-                  <span>Company</span>
-                  <span className="text-center">Score</span>
-                  <span className="text-right">Status</span>
-                </div>
-                {(
-                  [
-                    ["Acme Corp", "97", "Hot Lead", "text-[#22C55E]", "bg-[#DCFCE7] text-[#166534]"],
-                    ["TechFlow Ltd", "84", "Qualified", "text-[#CA8A04]", "bg-[#FEF9C3] text-[#854D0E]"],
-                    ["DataSync Inc", "71", "Nurturing", "text-[#0EA5E9]", "bg-[#E0F2FE] text-[#0369A1]"],
-                  ] as const
-                ).map(([co, sc, st, scCol, pill], i) => (
-                  <div
-                    key={co}
-                    className={`grid grid-cols-3 items-center border-t border-[rgba(0,0,0,0.06)] px-3 py-2.5 ${i % 2 === 0 ? "bg-white" : "bg-[#FAFEFF]"}`}
-                  >
-                    <span className="font-[family-name:var(--font-inter-tight)] text-[12px] text-[#0a0a14]">{co}</span>
-                    <span className={`text-center font-[family-name:var(--font-inter-tight)] text-[12px] font-semibold ${scCol}`}>{sc}</span>
-                    <span className="text-right">
-                      <span className={`inline-block rounded-full px-2 py-0.5 font-[family-name:var(--font-inter-tight)] text-[10px] font-medium ${pill}`}>{st}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <div className="rounded-lg bg-[#F0F9FF] px-3 py-2">
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[14px] font-bold text-[#0EA5E9]">1,247</div>
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[10px] text-[rgba(0,0,0,0.45)]">Leads Today</div>
-                </div>
-                <div className="rounded-lg bg-[#F0F9FF] px-3 py-2">
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[14px] font-bold text-[#22C55E]">340%</div>
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[10px] text-[rgba(0,0,0,0.45)]">Avg ROAS</div>
-                </div>
-                <div className="rounded-lg bg-[#F0F9FF] px-3 py-2">
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[14px] font-bold text-[#6055D9]">2.4s</div>
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[10px] text-[rgba(0,0,0,0.45)]">Response</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="order-1 lg:order-2">
-            <div className="mb-5 flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(14,165,233,0.25)] bg-[rgba(14,165,233,0.1)] px-3 py-1 font-[family-name:var(--font-inter-tight)] text-[11px] font-bold uppercase tracking-[0.08em] text-[#0EA5E9]">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#0EA5E9] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#0EA5E9]" />
-                </span>
-                LIVE
-              </span>
-              <span className="font-[family-name:var(--font-inter-tight)] text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--text-muted)]">
-                PRODUCT 02
-              </span>
-            </div>
-            <h2 className="mb-3.5 font-[family-name:var(--font-inter-tight)] text-[clamp(32px,4vw,46px)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[var(--text-primary)]">
-              Lead Gen Platform
-            </h2>
-            <p className="mb-[18px] font-[family-name:var(--font-inter-tight)] text-[18px] font-medium text-[#0EA5E9]">
-              AI that finds, qualifies, and nurtures leads automatically
-            </p>
-            <p className="mb-8 font-[family-name:var(--font-inter-tight)] text-[15px] font-normal leading-[1.7] text-[var(--text-secondary)]">
-              Our proprietary lead generation platform uses AI scoring models to identify high-intent prospects, qualify them in real-time, and
-              trigger automated nurture sequences — all without manual intervention.
-            </p>
-            <ul className="mb-8 space-y-2.5">
-              {[
-                "AI-powered lead scoring (40+ signals)",
-                "Real-time qualification & enrichment",
-                "Automated multi-channel nurture sequences",
-                "CRM integration & live reporting",
-              ].map((t) => (
-                <li key={t} className="flex gap-2.5 font-[family-name:var(--font-inter-tight)] text-[14px] text-[var(--text-secondary)]">
-                  <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border border-[rgba(96,85,217,0.2)] bg-[rgba(96,85,217,0.1)]">
-                    {checkIcon}
-                  </span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <div className="mb-8 flex flex-wrap gap-7 border-t border-[var(--border-color)] pt-7">
-              {[
-                { n: "10,000+", l: "Monthly Leads" },
-                { n: "340%", l: "Avg ROAS Lift" },
-                { n: "Zero", l: "Manual Work" },
-              ].map((s) => (
-                <div key={s.l}>
-                  <div className="font-[family-name:var(--font-inter-tight)] text-[26px] font-extrabold tracking-[-0.02em] text-[#0EA5E9]">{s.n}</div>
-                  <div className="mt-0.5 font-[family-name:var(--font-inter-tight)] text-[12px] font-normal uppercase tracking-[0.06em] text-[var(--text-muted)]">
-                    {s.l}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <BookingButton
-              source="products-lead-gen"
-              className="inline-flex items-center gap-2 rounded-full bg-[#0EA5E9] px-7 py-3.5 font-[family-name:var(--font-inter-tight)] text-[14px] font-semibold text-white shadow-[0_0_24px_rgba(14,165,233,0.35)] transition-opacity duration-200 hover:opacity-95"
-              style={{ textDecoration: "none" }}
-            >
-              Explore Lead Gen →
-            </BookingButton>
-          </div>
-        </div>
-      </section>
-
-      {/* —— SHARED CAPABILITIES —— */}
       <section className="border-t border-[var(--border-color)] bg-[var(--bg-primary)] px-6 py-[88px]">
         <div className="mx-auto max-w-[1160px] text-center">
           <span className="mb-3 inline-block font-[family-name:var(--font-inter-tight)] text-[11px] font-bold uppercase tracking-[0.1em] text-[#6055D9]">
@@ -451,7 +182,6 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* —— STATS BAND —— */}
       <section className="relative overflow-hidden px-6 py-16" style={{ background: "linear-gradient(135deg, #6055D9 0%, #4038B0 50%, #5048C8 100%)" }}>
         <div
           className="pointer-events-none absolute inset-0 opacity-100"
@@ -480,7 +210,6 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* —— CTA —— */}
       <section className="bg-[var(--bg-secondary)] px-6 py-[88px] text-center">
         <div className="relative mx-auto max-w-[780px] overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--bg-primary)] px-8 py-16 shadow-[0_4px_32px_rgba(96,85,217,0.06)] sm:px-12">
           <div

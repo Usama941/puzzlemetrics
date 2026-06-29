@@ -86,6 +86,28 @@ model PortfolioProject {
   updatedAt       DateTime @updatedAt
 }
 
+model Product {
+  id               String   @id @default(cuid())
+  badge            String?
+  label            String?
+  name             String
+  tagline          String?
+  description      String?
+  features         String[] @default([])
+  stats            Json?
+  primaryCtaText   String?
+  primaryCtaUrl    String?
+  secondaryCtaText String?
+  secondaryCtaUrl  String?
+  theme            String?  @default("violet")
+  mockup           Json?
+  mockupSide       String?  @default("right")
+  published        Boolean  @default(true)
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
 model CaseStudy {
   id              String   @id @default(cuid())
   slug            String   @unique
